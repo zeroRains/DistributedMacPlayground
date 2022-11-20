@@ -18,7 +18,11 @@ public class CPMM {
 
     public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
                                                                   JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
-                                                                  DataCharacteristics mc1, DataCharacteristics mc2) {
+                                                                  DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
+        if (in1.isEmpty() || in2.isEmpty())
+            throw new Exception("Input is empty!");
+        if (mc1.getCols() != mc2.getRows())
+            throw new Exception("Dimension do not match!");
         // 计算优先连接并行度
         int numPreferred = getPreferredParJoin(mc1, mc2, in1.getNumPartitions(), in2.getNumPartitions());
         int numPartJoin = Math.min(getMaxParJoin(mc1, mc2), numPreferred);

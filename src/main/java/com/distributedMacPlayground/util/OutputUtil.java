@@ -1,10 +1,13 @@
 package com.distributedMacPlayground.util;
 
+import org.apache.sysds.runtime.data.SparseRow;
+import org.apache.sysds.runtime.data.SparseRowVector;
+import org.apache.sysds.runtime.matrix.data.IJV;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.nio.Buffer;
+import java.util.Iterator;
 
 public class OutputUtil {
 
@@ -17,11 +20,28 @@ public class OutputUtil {
         int row = matrix.getNumRows();
 
         if (isSparse) {
+            for (int i = 0; i < row; i++) {
+                StringBuffer sb = new StringBuffer();
+                if (i != 0) sb.append("\n");
+                SparseRow rowData = matrix.getSparseBlock().get(i);
+                int[] location = rowData.indexes();
+                int cnt = 0;
+                for (int j = 0; j < col; j++) {
+                    if (j != 0) sb.append(",");
+                    if (cnt < location.length && j == location[cnt]) {
+                        sb.append(rowData.get(j));
+                        cnt++;
+                    } else sb.append(0);
+                }
+                out.write(sb.toString());
+            }
 
         } else {
             double[] data = matrix.getDenseBlockValues();
-            if (col * row != data.length)
+            if (col * row != data.length) {
+                out.close();
                 throw new Exception("Dimension Error!");
+            }
             for (int i = 0; i < row; i++) {
                 StringBuffer sb = new StringBuffer();
                 if (i != 0) sb.append("\n");
