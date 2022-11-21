@@ -14,7 +14,7 @@ import org.apache.sysds.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysds.runtime.meta.DataCharacteristics;
 import scala.Tuple2;
 
-public class CPMM {
+public class Cpmm {
 
     public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
                                                                   JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
@@ -66,7 +66,6 @@ public class CPMM {
     }
 
     private static class CpmmMultiplyFunction implements PairFunction<Tuple2<Long, Tuple2<IndexedMatrixValue, IndexedMatrixValue>>, MatrixIndexes, MatrixBlock> {
-        private static final long serialVersionUID = -2009255629093036642L;
         private AggregateBinaryOperator _op = null; //聚合二元操作符
 
         @Override
