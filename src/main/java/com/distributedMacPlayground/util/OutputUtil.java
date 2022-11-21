@@ -10,7 +10,13 @@ import java.io.FileWriter;
 import java.util.Iterator;
 
 public class OutputUtil {
-
+    /**
+     * output MatrixBlock to a local CSV file
+     *
+     * @param path   output file path
+     * @param matrix matrixBlock for output
+     * @throws Exception
+     */
     public static void outputMatrixToLocalCSV(String path, MatrixBlock matrix) throws Exception {
         if (matrix.isEmpty() || matrix.isEmptyBlock())
             throw new Exception("It is a empty matrix!");

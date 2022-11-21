@@ -23,10 +23,10 @@ public class Cpmm {
             throw new Exception("Input is empty!");
         if (mc1.getCols() != mc2.getRows())
             throw new Exception("Dimension do not match!");
-        // 计算优先连接并行度
+
         int numPreferred = getPreferredParJoin(mc1, mc2, in1.getNumPartitions(), in2.getNumPartitions());
         int numPartJoin = Math.min(getMaxParJoin(mc1, mc2), numPreferred);
-        // CPMM核心计算
+
         JavaPairRDD<Long, IndexedMatrixValue> tmp1 = in1.mapToPair(new CpmmIndexFunction(true));
         JavaPairRDD<Long, IndexedMatrixValue> tmp2 = in2.mapToPair(new CpmmIndexFunction(false));
         JavaPairRDD<MatrixIndexes, MatrixBlock> out = tmp1.join(tmp2, numPartJoin).mapToPair(new CpmmMultiplyFunction());
@@ -51,7 +51,7 @@ public class Cpmm {
 
     private static class CpmmIndexFunction implements PairFunction<Tuple2<MatrixIndexes, MatrixBlock>, Long, IndexedMatrixValue> {
         private static final long serialVersionUID = -1187183128301671162L;
-        private final boolean _left; // 是否为运算符左边的式子
+        private final boolean _left;
 
         public CpmmIndexFunction(boolean left) {
             _left = left;
@@ -66,7 +66,7 @@ public class Cpmm {
     }
 
     private static class CpmmMultiplyFunction implements PairFunction<Tuple2<Long, Tuple2<IndexedMatrixValue, IndexedMatrixValue>>, MatrixIndexes, MatrixBlock> {
-        private AggregateBinaryOperator _op = null; //聚合二元操作符
+        private AggregateBinaryOperator _op = null;
 
         @Override
         public Tuple2<MatrixIndexes, MatrixBlock> call(Tuple2<Long, Tuple2<IndexedMatrixValue, IndexedMatrixValue>> arg0) throws Exception {
@@ -78,7 +78,6 @@ public class Cpmm {
             MatrixBlock blkIn2 = (MatrixBlock) arg0._2()._2().getValue();
             MatrixIndexes ixOut = new MatrixIndexes();
 
-            // 核心矩阵乘法计算
             MatrixBlock blkOut = OperationsOnMatrixValues.matMult(blkIn1, blkIn2, new MatrixBlock(), _op);
 
             ixOut.setIndexes(arg0._2()._1().getIndexes().getRowIndex(), arg0._2()._2().getIndexes().getColumnIndex());

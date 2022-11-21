@@ -13,16 +13,16 @@ import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 public class testCpmm {
 
     public static void main(String[] args) throws Exception {
-        // 构建Spark环境
+
         SparkConf sparkConf = new SparkConf().setAppName("testCpmm").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
-        // 构造简单的矩阵乘法数据
+
         SimpleMatrixMulData data = new SimpleMatrixMulData(100, 200, 200, 1, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
-        // 创建输入的矩阵块
+
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in2.csv", data.in2Block);
-        // 将输入转化成分布式矩阵的存储格式
+
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
         JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
 
