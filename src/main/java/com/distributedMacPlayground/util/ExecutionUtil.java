@@ -45,8 +45,8 @@ public class ExecutionUtil {
                     Arrays.parallelSetAll(ret, i -> createPartitionedBroadcast(sc, pmb, numPerPart, i));
                 } else {
                     ret[0] = sc.broadcast(pmb);
-                    if (sc.isLocal())
-                        pmb.clearBlocks();
+//                    if (sc.isLocal())
+//                        pmb.clearBlocks();
                 }
                 bret = new PartitionedBroadcast<>(ret, mo.getDataCharacteristics());
 
@@ -77,8 +77,8 @@ public class ExecutionUtil {
         int numBlks = Math.min(numPerPart, pmb.getNumColumnBlocks() * pmb.getNumColumnBlocks() - offset);
         PartitionedBlock<MatrixBlock> tmp = pmb.createPartition(offset, numBlks);
         Broadcast<PartitionedBlock<MatrixBlock>> ret = sc.broadcast(tmp);
-        if (!sc.isLocal())
-            tmp.clearBlocks();
+//        if (!sc.isLocal())
+//            tmp.clearBlocks();
         return ret;
     }
 
