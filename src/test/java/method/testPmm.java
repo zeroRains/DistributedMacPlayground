@@ -38,7 +38,7 @@ public class testPmm { // Pmm（permutation matrix multiplication on row）, I f
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/in2.csv", data.in2Block);
 
-        // 行变换的例子
+        // row permutation
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 3, -1, false);
         MatrixCharacteristics mc = new MatrixCharacteristics(data.in2Block.getNumRows(), data.in2Block.getNumColumns(), 3, data.in2Block.getNonZeros());
         MetaData md = new MetaData(mc);
