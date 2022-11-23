@@ -48,7 +48,7 @@ public class Mapmm {
         MatrixBlock rdd = type.isRight() ? a : b;
         MatrixBlock bcast = type.isRight() ? b : a;
         DataCharacteristics mcRdd = new MatrixCharacteristics(rdd.getNumRows(), rdd.getNumColumns(), blen, rdd.getNonZeros());
-        DataCharacteristics mcBc = new MatrixCharacteristics(bcast.getNumRows(), rdd.getNumColumns(), blen, rdd.getNonZeros());
+        DataCharacteristics mcBc = new MatrixCharacteristics(bcast.getNumRows(), bcast.getNumColumns(), blen, bcast.getNonZeros());
 
         int numParts = (requiresFlatMapFunction(type, mcBc) && requiresRepartitioning(type, mcRdd, mcBc,
                 sc.defaultMinPartitions())) ? getNumRepartitioning(type, mcRdd, mcBc) : -1;
