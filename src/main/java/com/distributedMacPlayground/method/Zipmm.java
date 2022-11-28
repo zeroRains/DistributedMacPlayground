@@ -21,14 +21,14 @@ public class Zipmm {
     // use in the type like t(B)xa-> t(t(a)xB)
     // t() denotes transpose, a is a vector and B is a matrix
     public static MatrixBlock execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
-                                                                  JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
-                                                                  DataCharacteristics mc1, DataCharacteristics mc2, boolean _tRewrite) throws Exception {
+                                      JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
+                                      boolean _tRewrite) throws Exception {
         JavaRDD<MatrixBlock> out = in1.join(in2).values().map(new ZipMultiplyFunction(_tRewrite));
         MatrixBlock out2 = RDDAggregateUtils.sumStable(out);
 
-        if(_tRewrite){
+        if (_tRewrite) {
             ReorgOperator rop = new ReorgOperator(SwapIndex.getSwapIndexFnObject());
-            out2 = out2.reorgOperations(rop,new MatrixBlock(),0,0,0);
+            out2 = out2.reorgOperations(rop, new MatrixBlock(), 0, 0, 0);
         }
 
         return out2;

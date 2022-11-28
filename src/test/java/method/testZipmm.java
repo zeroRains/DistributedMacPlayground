@@ -24,7 +24,7 @@ public class testZipmm {
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
         JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
 
-        MatrixBlock res = Zipmm.execute(in1, in2, data.mc1, data.mc2, true);
+        MatrixBlock res = Zipmm.execute(in1, in2,true);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Zipmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Zipmm");
     }
