@@ -2,7 +2,7 @@ package method;
 
 import com.distributedMacPlayground.CommonConfig;
 import com.distributedMacPlayground.method.CpMM;
-import com.distributedMacPlayground.util.OutputUtil;
+import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -22,9 +22,9 @@ public class testCpMM {
 
         SimpleMatrixMulData data = new SimpleMatrixMulData(100, 200, 200, 1, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
 
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in1.csv", data.in1Block);
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in2.csv", data.in2Block);
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in3.csv", data.in3Block);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in1.csv", data.in1Block);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in2.csv", data.in2Block);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in3.csv", data.in3Block);
 
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
         JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
@@ -41,7 +41,7 @@ public class testCpMM {
 //        JavaPairRDD<MatrixIndexes, MatrixBlock> out = Cpmm.execute(in1, out1, data.mc1, outMc);
 
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc3.getCols(), data.mc1.getBlocksize(), -1);
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/out.csv", res);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Cpmm");
         sc.close();
     }

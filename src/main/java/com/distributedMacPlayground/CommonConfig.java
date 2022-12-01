@@ -23,13 +23,16 @@ public class CommonConfig {
         }
     }
 
-    public enum MMMethod{
-        CpMM,
-        MapMM,
-
+    public enum MMMethodType{
+        CpMM, // Cross Product-based Matrix Multiplication
+        MapMM, // map-side matrix-matrix multiplication using distributed cache
+        PMapMM, // partitioned map-side matrix-matrix multiplication
+        PMM, // permutation matrix multiplication using distributed cache
+        RMM, // replication matrix multiplication
+        ZipMM, // zip matrix multiplication
     }
 
-    public enum SparkAggTye {
+    public enum SparkAggType {
         SINGLE_BLOCK,
         MULTI_BLOCK,
         NONE

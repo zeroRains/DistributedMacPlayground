@@ -1,6 +1,6 @@
 package com.distributedMacPlayground.method;
 
-import com.distributedMacPlayground.CommonConfig.SparkAggTye;
+import com.distributedMacPlayground.CommonConfig.SparkAggType;
 import com.distributedMacPlayground.CommonConfig.CacheTpye;
 import com.distributedMacPlayground.util.ExecutionUtil;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -37,13 +37,13 @@ import java.util.stream.IntStream;
 public class MapMM {
 
     public static MatrixBlock execute(JavaSparkContext sc, MatrixBlock in1, MatrixBlock in2, int blen,
-                                      CacheTpye type, SparkAggTye _aggType) throws Exception {
+                                      CacheTpye type, SparkAggType _aggType) throws Exception {
         return execute(sc, in1, in2, blen, type, _aggType, true);
     }
 
     // format a x b
     public static MatrixBlock execute(JavaSparkContext sc, MatrixBlock a, MatrixBlock b, int blen,
-                                      CacheTpye type, SparkAggTye _aggType, boolean outputEmpty) throws Exception {
+                                      CacheTpye type, SparkAggType _aggType, boolean outputEmpty) throws Exception {
         MatrixBlock rdd = type.isRight() ? a : b;
         MatrixBlock bcast = type.isRight() ? b : a;
         DataCharacteristics mcRdd = new MatrixCharacteristics(rdd.getNumRows(), rdd.getNumColumns(), blen, rdd.getNonZeros());
@@ -74,7 +74,7 @@ public class MapMM {
         if (!outputEmpty)
             in1 = in1.filter(new FilterNonEmptyBlocksFunction());
 
-        if (_aggType == SparkAggTye.SINGLE_BLOCK) {
+        if (_aggType == SparkAggType.SINGLE_BLOCK) {
             JavaRDD<MatrixBlock> out = in1.map(new RDDMapMMFunction2(type, in2));
             return RDDAggregateUtils.sumStable(out);
         } else {
@@ -93,7 +93,7 @@ public class MapMM {
             if (!outputEmpty)
                 out = out.filter(new FilterNonEmptyBlocksFunction());
 
-            if (_aggType == SparkAggTye.MULTI_BLOCK)
+            if (_aggType == SparkAggType.MULTI_BLOCK)
                 out = RDDAggregateUtils.sumByKeyStable(out, false);
 
             return SparkExecutionContext.toMatrixBlock(out, a.getNumRows(), b.getNumColumns(), blen, -1);

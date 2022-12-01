@@ -1,15 +1,17 @@
 package com.distributedMacPlayground.util;
 
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.sysds.hops.OptimizerUtils;
-import org.apache.sysds.runtime.controlprogram.caching.CacheBlock;
 import org.apache.sysds.runtime.controlprogram.caching.CacheableData;
 import org.apache.sysds.runtime.controlprogram.caching.MatrixObject;
+import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysds.runtime.instructions.spark.data.BroadcastObject;
 import org.apache.sysds.runtime.instructions.spark.data.PartitionedBlock;
 import org.apache.sysds.runtime.instructions.spark.data.PartitionedBroadcast;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
+import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 
 import java.util.Arrays;
 
@@ -82,5 +84,11 @@ public class ExecutionUtil {
         return ret;
     }
 
+    public static MatrixBlock matrixRDDToMatrixBlock(JavaPairRDD<MatrixIndexes, MatrixBlock> in, int rlen, int clen, int bs) {
+        return SparkExecutionContext.toMatrixBlock(in, rlen, clen, bs, -1);
+    }
 
+    public static JavaPairRDD<MatrixIndexes, MatrixBlock> matrixBlockToMatrixRDD(JavaSparkContext sc, MatrixBlock in, int bs) {
+        return SparkExecutionContext.toMatrixJavaPairRDD(sc, in, bs);
+    }
 }

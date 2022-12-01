@@ -3,7 +3,7 @@ package method;
 import com.distributedMacPlayground.CommonConfig;
 import com.distributedMacPlayground.method.PMM;
 import com.distributedMacPlayground.util.ExecutionUtil;
-import com.distributedMacPlayground.util.OutputUtil;
+import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -35,8 +35,8 @@ public class testPmm { // Pmm（permutation matrix multiplication on row）, I f
         System.out.println("A: "+data.in1Block.getNumRows() + "x" + data.in1Block.getNumColumns());
         System.out.println("B: "+data.in2Block.getNumRows() + "x" + data.in2Block.getNumColumns());
 
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/in1.csv", data.in1Block);
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/in2.csv", data.in2Block);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/in1.csv", data.in1Block);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/in2.csv", data.in2Block);
 
         // row permutation
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 3, -1, false);
@@ -49,7 +49,7 @@ public class testPmm { // Pmm（permutation matrix multiplication on row）, I f
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc1.getCols(), data.mc1.getBlocksize(), -1);
 
         System.out.println("res: "+res.getNumRows() + "x" + res.getNumColumns());
-        OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/out.csv", res);
+        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Pmm");
     }
 }

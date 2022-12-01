@@ -1,15 +1,20 @@
 package com.distributedMacPlayground.util;
 
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysds.runtime.data.SparseRow;
-import org.apache.sysds.runtime.data.SparseRowVector;
-import org.apache.sysds.runtime.matrix.data.IJV;
+import org.apache.sysds.runtime.instructions.spark.utils.RDDConverterUtils;
+import org.apache.sysds.runtime.io.FileFormatPropertiesCSV;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
+import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
+import org.apache.sysds.runtime.meta.DataCharacteristics;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.Iterator;
 
-public class OutputUtil {
+public class IOUtil {
     /**
      * output MatrixBlock to a local CSV file
      *
@@ -60,5 +65,16 @@ public class OutputUtil {
         }
         out.close();
     }
-    
+
+    public static JavaPairRDD<MatrixIndexes, MatrixBlock> csvFileToMatrixRDD(JavaSparkContext sc, String path, DataCharacteristics mc) {
+        JavaRDD<String> csvData = sc.textFile(path);
+        return RDDConverterUtils.csvToBinaryBlock(sc, csvData, mc, false, ",", true, 0, null);
+    }
+
+    public static void saveMatrixAsCSVFile(JavaPairRDD<MatrixIndexes, MatrixBlock> in, String path, DataCharacteristics mc) {
+        JavaRDD<String> csvData = RDDConverterUtils.binaryBlockToCsv(in, mc, new FileFormatPropertiesCSV(), true);
+        csvData.saveAsTextFile(path);
+    }
+
+
 }
