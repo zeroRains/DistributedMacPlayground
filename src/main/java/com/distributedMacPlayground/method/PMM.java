@@ -14,7 +14,7 @@ import scala.Tuple2;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Pmm {
+public class PMM {
     public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
                                                                   PartitionedBroadcast<MatrixBlock> in2,
                                                                   DataCharacteristics mc1,  long rlen) throws Exception {

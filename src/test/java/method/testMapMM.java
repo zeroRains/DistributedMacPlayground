@@ -1,14 +1,14 @@
 package method;
 
 import com.distributedMacPlayground.CommonConfig;
-import com.distributedMacPlayground.method.Mapmm;
+import com.distributedMacPlayground.method.MapMM;
 import com.distributedMacPlayground.util.OutputUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.junit.Test;
 
-public class testMapmm {
+public class testMapMM {
     @Test
     public void testLeftBroadcastMultiBlockFlatMap() throws Exception {
         SparkConf sparkConf = new SparkConf().setAppName("testMapmm").setMaster("local");
@@ -20,7 +20,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -37,7 +37,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -54,7 +54,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -71,7 +71,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 100, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.SINGLE_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 100, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.SINGLE_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -88,7 +88,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 100, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.SINGLE_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 100, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.SINGLE_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -105,7 +105,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -122,7 +122,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -139,7 +139,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -156,7 +156,7 @@ public class testMapmm {
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = Mapmm.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
+        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggTye.MULTI_BLOCK, false);
 
         OutputUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");

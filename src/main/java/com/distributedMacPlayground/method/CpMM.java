@@ -14,7 +14,7 @@ import org.apache.sysds.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysds.runtime.meta.DataCharacteristics;
 import scala.Tuple2;
 
-public class Cpmm {
+public class CpMM {
 
     public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
                                                                   JavaPairRDD<MatrixIndexes, MatrixBlock> in2,

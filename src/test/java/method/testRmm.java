@@ -1,7 +1,7 @@
 package method;
 
 import com.distributedMacPlayground.CommonConfig;
-import com.distributedMacPlayground.method.Rmm;
+import com.distributedMacPlayground.method.RMM;
 import com.distributedMacPlayground.util.OutputUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -25,7 +25,7 @@ public class testRmm {
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
         JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
 
-        JavaPairRDD<MatrixIndexes, MatrixBlock> out = Rmm.execute(in1, in2, data.mc1, data.mc2);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> out = RMM.execute(in1, in2, data.mc1, data.mc2);
 
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc2.getCols(), data.mc1.getBlocksize(), -1);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Rmm/out.csv", res);

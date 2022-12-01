@@ -6,7 +6,6 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.sysds.runtime.functionobjects.Multiply;
 import org.apache.sysds.runtime.functionobjects.Plus;
 import org.apache.sysds.runtime.functionobjects.SwapIndex;
-import org.apache.sysds.runtime.instructions.spark.data.PartitionedBroadcast;
 import org.apache.sysds.runtime.instructions.spark.utils.RDDAggregateUtils;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
@@ -14,10 +13,9 @@ import org.apache.sysds.runtime.matrix.data.OperationsOnMatrixValues;
 import org.apache.sysds.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysds.runtime.matrix.operators.AggregateOperator;
 import org.apache.sysds.runtime.matrix.operators.ReorgOperator;
-import org.apache.sysds.runtime.meta.DataCharacteristics;
 import scala.Tuple2;
 
-public class Zipmm {
+public class ZipMM {
     // use in the type like t(B)xa-> t(t(a)xB)
     // t() denotes transpose, a is a vector and B is a matrix
     public static MatrixBlock execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,

@@ -23,6 +23,12 @@ public class CommonConfig {
         }
     }
 
+    public enum MMMethod{
+        CpMM,
+        MapMM,
+
+    }
+
     public enum SparkAggTye {
         SINGLE_BLOCK,
         MULTI_BLOCK,

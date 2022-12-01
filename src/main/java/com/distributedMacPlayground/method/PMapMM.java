@@ -21,7 +21,7 @@ import scala.Tuple2;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class PMapmm {
+public class PMapMM {
 
     private static final int NUM_ROWBLOCKS = 4;
 

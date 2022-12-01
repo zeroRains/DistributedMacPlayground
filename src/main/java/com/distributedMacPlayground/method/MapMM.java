@@ -1,6 +1,5 @@
 package com.distributedMacPlayground.method;
 
-import com.distributedMacPlayground.CommonConfig;
 import com.distributedMacPlayground.CommonConfig.SparkAggTye;
 import com.distributedMacPlayground.CommonConfig.CacheTpye;
 import com.distributedMacPlayground.util.ExecutionUtil;
@@ -35,7 +34,7 @@ import scala.Tuple2;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
-public class Mapmm {
+public class MapMM {
 
     public static MatrixBlock execute(JavaSparkContext sc, MatrixBlock in1, MatrixBlock in2, int blen,
                                       CacheTpye type, SparkAggTye _aggType) throws Exception {

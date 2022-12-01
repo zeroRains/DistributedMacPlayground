@@ -1,7 +1,7 @@
 package method;
 
 import com.distributedMacPlayground.CommonConfig;
-import com.distributedMacPlayground.method.Pmm;
+import com.distributedMacPlayground.method.PMM;
 import com.distributedMacPlayground.util.ExecutionUtil;
 import com.distributedMacPlayground.util.OutputUtil;
 import org.apache.spark.SparkConf;
@@ -45,7 +45,7 @@ public class testPmm { // Pmm（permutation matrix multiplication on row）, I f
         MatrixObject mo = new MatrixObject(ValueType.FP64, "", md, data.in2Block);
         PartitionedBroadcast<MatrixBlock> broadData = ExecutionUtil.broadcastForMatrixObject(sc, mo);
 
-        JavaPairRDD<MatrixIndexes, MatrixBlock> out = Pmm.execute(in1, broadData, data.mc1, data.mc1.getRows());
+        JavaPairRDD<MatrixIndexes, MatrixBlock> out = PMM.execute(in1, broadData, data.mc1, data.mc1.getRows());
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc1.getCols(), data.mc1.getBlocksize(), -1);
 
         System.out.println("res: "+res.getNumRows() + "x" + res.getNumColumns());

@@ -4,7 +4,6 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.sysds.hops.OptimizerUtils;
-import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysds.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
 import org.apache.sysds.runtime.functionobjects.Multiply;
 import org.apache.sysds.runtime.functionobjects.Plus;
@@ -20,11 +19,10 @@ import org.apache.sysds.runtime.meta.DataCharacteristics;
 import org.apache.sysds.runtime.meta.MatrixCharacteristics;
 import scala.Tuple2;
 
-import javax.ws.rs.core.Link;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Rmm {
+public class RMM {
     public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
                                                                   JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
                                                                   DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
