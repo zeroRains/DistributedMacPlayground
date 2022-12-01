@@ -154,7 +154,7 @@ public class RunMethod {
             case MapMM:
                 if (_cacheType == null || _aggType == null)
                     throw new Exception("please set _cacheType and _aggType");
-                blkOut = MapMM.execute(sc, blkIn1, blkIn2, _blockSize, _cacheType, _aggType);
+                blkOut = MapMM.execute(sc, blkIn1, blkIn2, _blockSize, _cacheType, _aggType, _outputEmpty);
                 break;
             default:
                 throw new Exception("have not supported this method!");

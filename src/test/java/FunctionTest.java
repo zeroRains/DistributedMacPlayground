@@ -28,7 +28,7 @@ public class FunctionTest {
         MatrixCharacteristics mc = new MatrixCharacteristics(100, 200, 10);
         JavaPairRDD<MatrixIndexes, MatrixBlock> rdd = RDDConverterUtils.csvToBinaryBlock(sc, csvData, mc, false, ",", true, 0, null);
         JavaRDD<String> tmp = RDDConverterUtils.binaryBlockToCsv(rdd, mc, new FileFormatPropertiesCSV(), true);
-        tmp.saveAsTextFile(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in1");
+//        tmp.saveAsTextFile(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/in1");
         sc.close();
         System.out.println();
     }
