@@ -10,10 +10,11 @@ import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysds.runtime.meta.MatrixCharacteristics;
+import org.junit.Test;
 
 public class testCpmm {
-
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void testCpMM() throws Exception {
 
         SparkConf sparkConf = new SparkConf().setAppName("testCpmm").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
@@ -42,6 +43,7 @@ public class testCpmm {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc3.getCols(), data.mc1.getBlocksize(), -1);
         OutputUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Cpmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Cpmm");
+        sc.close();
     }
 
 
