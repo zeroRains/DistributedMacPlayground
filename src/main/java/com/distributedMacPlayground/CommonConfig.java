@@ -2,6 +2,7 @@ package com.distributedMacPlayground;
 
 public class CommonConfig {
     public static String OUTPUT_BUFFER_DIR = "src/test/cache/";
+    public static String SYNTHETICDATASET_DIR = "src/main/resources/syntheticDataset/";
 
     public enum CacheTpye {
         LEFT,
