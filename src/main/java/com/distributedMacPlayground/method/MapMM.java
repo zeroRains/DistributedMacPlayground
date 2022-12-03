@@ -36,22 +36,32 @@ import java.util.stream.IntStream;
 
 public class MapMM {
 
-    public static MatrixBlock execute(JavaSparkContext sc, MatrixBlock in1, MatrixBlock in2, int blen,
-                                      CacheTpye type, SparkAggType _aggType) throws Exception {
-        return execute(sc, in1, in2, blen, type, _aggType, true);
+    public static MatrixBlock execute(JavaSparkContext sc,
+                                      JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
+                                      JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
+                                      DataCharacteristics mc1, DataCharacteristics mc2,
+                                      int blen, CacheTpye type, SparkAggType _aggType) throws Exception {
+        return execute(sc, in1, in2, mc1, mc2, blen, type, _aggType, true);
     }
 
     // format a x b
-    public static MatrixBlock execute(JavaSparkContext sc, MatrixBlock a, MatrixBlock b, int blen,
-                                      CacheTpye type, SparkAggType _aggType, boolean outputEmpty) throws Exception {
-        MatrixBlock rdd = type.isRight() ? a : b;
-        MatrixBlock bcast = type.isRight() ? b : a;
-        DataCharacteristics mcRdd = new MatrixCharacteristics(rdd.getNumRows(), rdd.getNumColumns(), blen, rdd.getNonZeros());
-        DataCharacteristics mcBc = new MatrixCharacteristics(bcast.getNumRows(), bcast.getNumColumns(), blen, bcast.getNonZeros());
+    public static MatrixBlock execute(JavaSparkContext sc, JavaPairRDD<MatrixIndexes, MatrixBlock> a,
+                                      JavaPairRDD<MatrixIndexes, MatrixBlock> b, DataCharacteristics mc1,
+                                      DataCharacteristics mc2, int blen, CacheTpye type, SparkAggType _aggType,
+                                      boolean outputEmpty) throws Exception {
+        JavaPairRDD<MatrixIndexes, MatrixBlock> rdd = type.isRight() ? a : b;
+        JavaPairRDD<MatrixIndexes, MatrixBlock> bcast = type.isRight() ? b : a;
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1;
+        DataCharacteristics mcRdd = type.isRight() ? mc1 : mc2;
+        DataCharacteristics mcBc = type.isRight() ? mc2 : mc1;
 
         int numParts = (requiresFlatMapFunction(type, mcBc) && requiresRepartitioning(type, mcRdd, mcBc,
                 sc.defaultMinPartitions())) ? getNumRepartitioning(type, mcRdd, mcBc) : -1;
-        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, rdd, blen, numParts, outputEmpty);
+        if (numParts > 1)
+            in1 = rdd.repartition(numParts);
+        else
+            in1 = rdd;
+
 
         if (requiresFlatMapFunction(type, mcBc) &&
                 requiresRepartitioning(type, mcRdd, mcBc, in1.getNumPartitions())) {
@@ -61,14 +71,15 @@ public class MapMM {
                 type = type.getFilped();
                 rdd = type.isRight() ? a : b;
                 bcast = type.isRight() ? b : a;
-                mcRdd = new MatrixCharacteristics(rdd.getNumRows(), rdd.getNumColumns(), blen, rdd.getNonZeros());
-                mcBc = new MatrixCharacteristics(bcast.getNumRows(), rdd.getNumColumns(), blen, rdd.getNonZeros());
-                in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, rdd, blen, -1, outputEmpty);
+                mcRdd = type.isRight() ? mc1 : mc2;
+                mcBc = type.isRight() ? mc2 : mc1;
+                in1 = rdd;
             }
         }
 
         MetaData md = new MetaData(mcBc);
-        MatrixObject mo = new MatrixObject(Types.ValueType.FP64, "", md, bcast);
+        MatrixBlock blkBroadcast = SparkExecutionContext.toMatrixBlock(bcast, (int) mcBc.getRows(), (int) mcBc.getCols(), blen, -1);
+        MatrixObject mo = new MatrixObject(Types.ValueType.FP64, "", md, blkBroadcast);
         PartitionedBroadcast<MatrixBlock> in2 = ExecutionUtil.broadcastForMatrixObject(sc, mo);
 
         if (!outputEmpty)
@@ -96,7 +107,7 @@ public class MapMM {
             if (_aggType == SparkAggType.MULTI_BLOCK)
                 out = RDDAggregateUtils.sumByKeyStable(out, false);
 
-            return SparkExecutionContext.toMatrixBlock(out, a.getNumRows(), b.getNumColumns(), blen, -1);
+            return SparkExecutionContext.toMatrixBlock(out, (int) mc1.getRows(), (int) mc2.getCols(), blen, -1);
         }
 
     }

@@ -4,8 +4,11 @@ import com.distributedMacPlayground.CommonConfig;
 import com.distributedMacPlayground.method.MapMM;
 import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
+import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 import org.junit.Test;
 
 public class testMapMM {
@@ -19,8 +22,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -37,7 +41,9 @@ public class testMapMM {
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -53,8 +59,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -70,8 +77,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 100, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.SINGLE_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 100, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 100, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 100, CommonConfig.CacheTpye.LEFT,  CommonConfig.SparkAggType.SINGLE_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -88,7 +96,9 @@ public class testMapMM {
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
 
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 100, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.SINGLE_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 100, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 100, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 100, CommonConfig.CacheTpye.RIGHT,  CommonConfig.SparkAggType.SINGLE_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -104,8 +114,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 1, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 1, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 1, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -121,8 +132,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -138,8 +150,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 10, CommonConfig.CacheTpye.RIGHT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
@@ -155,8 +168,9 @@ public class testMapMM {
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
-
-        MatrixBlock res = MapMM.execute(sc, data.in1Block, data.in2Block, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in2Block, 10, -1, false); // 将MatrixBlock转化成RDD的方式
+        MatrixBlock res = MapMM.execute(sc, in1, in2, data.mc1, data.mc2, 10, CommonConfig.CacheTpye.LEFT, CommonConfig.SparkAggType.MULTI_BLOCK, false);
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Mapmm");
