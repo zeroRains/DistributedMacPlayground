@@ -14,8 +14,6 @@ import java.util.List;
 
 
 public class Main {
-
-
     static int row = -1;
     static int middle = -1;
     static int col = -1;
@@ -44,31 +42,39 @@ public class Main {
 
         if (dataType.equals("data")) {
             if (_type != MMMethodType.MapMM) {
-                RunMethod runMethod = new RunMethod(sc, _type, row, col, blockSize, middle, in1Path, in2Path);
+                RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1Path, in2Path);
+                runMethod.set_tRewrite(_tWrite);
                 runMethod.execute();
                 if (runMethod.getOut() != null) {
                     List<Tuple2<MatrixIndexes, MatrixBlock>> res = runMethod.getOut().collect();
                 }
             } else {
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, _cacheType, _aggType, in1Path, in2Path);
+                runMethod.set_outputEmpty(outputEmpty);
                 runMethod.execute();
             }
         } else {
+            RandomMatrixRDDGenerator rddGenerator = new RandomMatrixRDDGenerator(min, max, sparsity, pdf, seed);
+            JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = rddGenerator.generate(sc, in1Path);
+            row = rddGenerator.getRlen();
+            middle = rddGenerator.getClen();
+            blockSize = rddGenerator.getBlockSize();
+            JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = rddGenerator.generate(sc, in2Path);
+            col = rddGenerator.getClen();
+            if (middle != rddGenerator.getRlen())
+                throw new Exception("Dimension do not match!");
             if (_type != MMMethodType.MapMM) {
-                RandomMatrixRDDGenerator rddGenerator = new RandomMatrixRDDGenerator(min, max, sparsity, pdf, seed);
-                JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = rddGenerator.generate(sc, in1Path);
-                row = rddGenerator.getRlen();
-                middle = rddGenerator.getClen();
-                blockSize = rddGenerator.getBlockSize();
-                JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = rddGenerator.generate(sc, in2Path);
-                col = rddGenerator.getClen();
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1, in2);
+                runMethod.set_tRewrite(_tWrite);
                 runMethod.execute();
                 if (runMethod.getOut() != null) {
                     List<Tuple2<MatrixIndexes, MatrixBlock>> tmp = runMethod.getOut().collect();
                 }
-            } else
-                throw new Exception("I have not wrote!");
+            } else {
+                RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, _cacheType, _aggType, in1, in2);
+                runMethod.set_outputEmpty(outputEmpty);
+                runMethod.execute();
+            }
         }
         System.out.println("finished");
         sc.close(); // if you didn't write it, your application state will be FAILED.
@@ -93,8 +99,7 @@ public class Main {
         // -mmType CpMM -dataType data -blockSize 10 -row 100 -col 1 -middle 200 -in1 src/test/cache/Cpmm/in1.csv -in2 src/test/cache/Cpmm/in2.csv
         // -mmType MapMM -dataType data -blockSize 10 -row 100 -col 1  -middle 200 -cacheType left -aggType multi -in1 src/test/cache/Cpmm/in1.csv -in2 src/test/cache/Cpmm/in2.csv
         // -mmType CpMM -dataType index -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
-
-        // -mmType CpMM -dataType index -cacheType left -aggType multi -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
+        // -mmType MapMM -dataType index -cacheType left -aggType multi -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
 
         if (args.length % 2 != 0) throw new Exception("Some parameter have no value!");
         for (int i = 0; i < args.length; i += 2) {
