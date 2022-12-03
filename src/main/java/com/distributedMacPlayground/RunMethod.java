@@ -31,8 +31,8 @@ public class RunMethod {
     MatrixBlock blkIn1 = null;
     MatrixBlock blkIn2 = null;
 
-    // get data from csv file (without header), expect MapMM
-    public RunMethod(JavaSparkContext sc, MMMethodType _methodType, int _outRowLen, int _outColLen, int _middleLen, String matrixPath1, String matrixPath2) {
+    // get data from csv data file (without header), expect MapMM
+    public RunMethod(JavaSparkContext sc, MMMethodType _methodType, int _outRowLen, int _outColLen, int _middleLen, int _blockSize, String matrixPath1, String matrixPath2) {
         this.sc = sc;
         this._methodType = _methodType;
         this._outRowLen = _outRowLen;
@@ -40,6 +40,7 @@ public class RunMethod {
         this._middleLen = _middleLen;
         this.matrixPath1 = matrixPath1;
         this.matrixPath2 = matrixPath2;
+        this._blockSize = _blockSize;
         this.mc1 = new MatrixCharacteristics(_outRowLen, _middleLen, _blockSize);
         this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
         in1 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath1, this.mc1);
@@ -59,8 +60,22 @@ public class RunMethod {
         this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
     }
 
+    // get data by index， expect MapMM
+    public RunMethod(JavaSparkContext sc, MMMethodType _methodType, int _outRowLen, int _outColLen, int _middleLen, int _blockSize, JavaPairRDD<MatrixIndexes, MatrixBlock> in1, JavaPairRDD<MatrixIndexes, MatrixBlock> in2) {
+        this.sc = sc;
+        this._methodType = _methodType;
+        this._outRowLen = _outRowLen;
+        this._outColLen = _outColLen;
+        this._middleLen = _middleLen;
+        this._blockSize = _blockSize;
+        this.in1 = in1;
+        this.in2 = in2;
+        this.mc1 = new MatrixCharacteristics(_outRowLen, _middleLen, _blockSize);
+        this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
+    }
+
     // get data from csv file (without header), use for MapMM
-    public RunMethod(JavaSparkContext sc, MMMethodType _methodType, int _outRowLen, int _outColLen, int _middleLen, CacheTpye _cacheType, SparkAggType _aggType, String matrixPath1, String matrixPath2) {
+    public RunMethod(JavaSparkContext sc, MMMethodType _methodType, int _outRowLen, int _outColLen, int _middleLen, int _blockSize, CacheTpye _cacheType, SparkAggType _aggType, String matrixPath1, String matrixPath2) {
         this.sc = sc;
         this._methodType = _methodType;
         this._outRowLen = _outRowLen;
@@ -70,6 +85,7 @@ public class RunMethod {
         this._aggType = _aggType;
         this.matrixPath1 = matrixPath1;
         this.matrixPath2 = matrixPath2;
+        this._blockSize = _blockSize;
         this.mc1 = new MatrixCharacteristics(_outRowLen, _middleLen, _blockSize);
         this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
         in1 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath1, this.mc1);
@@ -91,6 +107,7 @@ public class RunMethod {
         this.blkIn2 = blkIn2;
     }
 
+
     private int _blockSize = 1000;
     private int _numParts = -1;
     private boolean _outputEmpty = false;
@@ -98,13 +115,6 @@ public class RunMethod {
     private MatrixBlock blkOut;
     private JavaPairRDD<MatrixIndexes, MatrixBlock> out;
 
-    public int get_blockSize() {
-        return _blockSize;
-    }
-
-    public void set_blockSize(int _blockSize) {
-        this._blockSize = _blockSize;
-    }
 
     public int get_numParts() {
         return _numParts;

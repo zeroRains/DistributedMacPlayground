@@ -38,10 +38,16 @@ public class FunctionTest {
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
         RandomMatrixRDDGenerator generator = new RandomMatrixRDDGenerator(2, 5, 1.0, 1023);
-        JavaPairRDD<MatrixIndexes, MatrixBlock> out = generator.generate(sc,indexFileName);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> out = generator.generate(sc, indexFileName);
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, generator.getRlen(), generator.getClen(), generator.getBlockSize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "FunctionTest/generate.csv", res);
         System.out.println("Calculate successfully! You can find this output from ./src/test/cache/FunctionTest");
     }
+
+    @Test
+    public void testForTest() {
+        System.out.println("-in1".toUpperCase());
+    }
+
 
 }
