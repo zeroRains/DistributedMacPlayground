@@ -1,6 +1,7 @@
 package com.distributedMacPlayground;
 
 import com.distributedMacPlayground.util.RandomMatrixRDDGenerator;
+import com.distributedMacPlayground.util.TimeStatisticsUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -11,7 +12,6 @@ import org.apache.sysds.runtime.meta.MatrixCharacteristics;
 import scala.Tuple2;
 
 import java.util.List;
-
 
 public class Main {
     static int row = -1;
@@ -34,26 +34,48 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        parseParameter(args);
-        checkParameters();
+        // 1. create spark environment
         SparkConf sparkConf = new SparkConf().setAppName("test"); //you can use .setMaster("local") to run in the local machine when you test the program.
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
 
+        TimeStatisticsUtil.totalStart(System.nanoTime());
+        // 2. parse and check the parameters
+        TimeStatisticsUtil.parametersCheckStart(System.nanoTime());
+        parseParameter(args);
+        checkParameters();
+        TimeStatisticsUtil.parametersCheckStop(System.nanoTime());
+
+
+        // 3. RDD transform and execute the distributed matrix multiply
+
         if (dataType.equals("data")) {
             if (_type != MMMethodType.MapMM) {
+
+                TimeStatisticsUtil.loadDataStart(System.nanoTime());
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1Path, in2Path);
                 runMethod.set_tRewrite(_tWrite);
+                TimeStatisticsUtil.loadDataStop(System.nanoTime());
+
+                TimeStatisticsUtil.calculateStart(System.nanoTime());
                 runMethod.execute();
                 if (runMethod.getOut() != null) {
                     List<Tuple2<MatrixIndexes, MatrixBlock>> res = runMethod.getOut().collect();
                 }
+                TimeStatisticsUtil.calculateStop(System.nanoTime());
+
             } else {
+                TimeStatisticsUtil.loadDataStart(System.nanoTime());
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, _cacheType, _aggType, in1Path, in2Path);
                 runMethod.set_outputEmpty(outputEmpty);
+                TimeStatisticsUtil.loadDataStop(System.nanoTime());
+
+                TimeStatisticsUtil.calculateStart(System.nanoTime());
                 runMethod.execute();
+                TimeStatisticsUtil.calculateStop(System.nanoTime());
             }
         } else {
+            TimeStatisticsUtil.loadDataStart(System.nanoTime());
             RandomMatrixRDDGenerator rddGenerator = new RandomMatrixRDDGenerator(min, max, sparsity, pdf, seed);
             JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = rddGenerator.generate(sc, in1Path);
             row = rddGenerator.getRlen();
@@ -66,17 +88,33 @@ public class Main {
             if (_type != MMMethodType.MapMM) {
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1, in2);
                 runMethod.set_tRewrite(_tWrite);
+                TimeStatisticsUtil.loadDataStop(System.nanoTime());
+
+                TimeStatisticsUtil.calculateStart(System.nanoTime());
                 runMethod.execute();
                 if (runMethod.getOut() != null) {
                     List<Tuple2<MatrixIndexes, MatrixBlock>> tmp = runMethod.getOut().collect();
                 }
+                TimeStatisticsUtil.calculateStop(System.nanoTime());
             } else {
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, _cacheType, _aggType, in1, in2);
                 runMethod.set_outputEmpty(outputEmpty);
+                TimeStatisticsUtil.loadDataStop(System.nanoTime());
+
+                TimeStatisticsUtil.calculateStart(System.nanoTime());
                 runMethod.execute();
+                TimeStatisticsUtil.calculateStop(System.nanoTime());
             }
         }
-        System.out.println("finished");
+        TimeStatisticsUtil.totalTimeStop(System.nanoTime());
+        // 4. output the execution time
+        System.out.println("Check parameters time: " + String.format("%.9f", TimeStatisticsUtil.getParametersCheckTime()) + " s.");
+        System.out.println("Load data time:        " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");
+        System.out.println("Calculate time:        " + String.format("%.9f", TimeStatisticsUtil.getCalculateTime()) + " s.");
+        System.out.println("Total time:            " + String.format("%.9f", TimeStatisticsUtil.getTotalTime()) + " s.");
+        System.out.println("Finish to calculate distributed matrix multiply.");
+
+        // 5. close spark environment
         sc.close(); // if you didn't write it, your application state will be FAILED.
     }
 
@@ -92,7 +130,7 @@ public class Main {
         //  -mmType CpMM -dataType data -in1 hdfs://localhost:9000/user/root/test/in1.csv -in2 hdfs://localhost:9000/user/root/test/in2.csv -row 100 -col 200 -middle 300 -blockSize 10
         // -mmtype CpMM -datatype index -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv
         // -mmtype MapMM -datatype data -in1 hdfs://localhost:9000/user/root/test/in1.csv -in2 hdfs://localhost:9000/user/root/test/in2.csv -cacheType left -aggType multi -row 100 -col 200 -middle 300 -blockSize 10
-        // -mmtype MapMM -datatype data -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv -cacheType left -aggType multi
+        // -mmtype MapMM -datatype index -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv -cacheType left -aggType multi
         // -twrite true -outputEmpty false
 
         // local test parameters:
@@ -100,7 +138,16 @@ public class Main {
         // -mmType MapMM -dataType data -blockSize 10 -row 100 -col 1  -middle 200 -cacheType left -aggType multi -in1 src/test/cache/Cpmm/in1.csv -in2 src/test/cache/Cpmm/in2.csv
         // -mmType CpMM -dataType index -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
         // -mmType MapMM -dataType index -cacheType left -aggType multi -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
-
+/*
+spark-submit --deploy-mode cluster\
+             --master spark://6e1929967e39:7077 \
+             --class com.distributedMacPlayground.Main \
+             DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
+             -mmtype RMM \
+             -datatype index \
+             -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv \
+             -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv
+*/
         if (args.length % 2 != 0) throw new Exception("Some parameter have no value!");
         for (int i = 0; i < args.length; i += 2) {
             switch (args[i].toUpperCase()) {
