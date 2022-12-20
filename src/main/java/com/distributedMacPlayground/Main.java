@@ -8,7 +8,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import com.distributedMacPlayground.CommonConfig.MMMethodType;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
-import org.apache.sysds.runtime.meta.MatrixCharacteristics;
 import scala.Tuple2;
 
 import java.util.List;
@@ -28,6 +27,7 @@ public class Main {
     static String in1Path = null;
     static String in2Path = null;
     static String pdf = "uniform";
+    static String saveFilePath = null;
     static MMMethodType _type = null;
     static CommonConfig.CacheTpye _cacheType = CommonConfig.CacheTpye.LEFT;
     static CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
@@ -91,8 +91,13 @@ public class Main {
                 TimeStatisticsUtil.loadDataStop(System.nanoTime());
 
                 TimeStatisticsUtil.calculateStart(System.nanoTime());
+                if (_type == MMMethodType.TEST && saveFilePath != null) {
+                    runMethod.setOutputIn1Path(saveFilePath + "/" + row + "x" + middle + "x" + blockSize + "_matrix_data.csv");
+                    if (row != middle)
+                        runMethod.setOutputIn2Path(saveFilePath + "/" + middle + "x" + col + "x" + blockSize + "_matrix_data.csv");
+                }
                 runMethod.execute();
-                if (runMethod.getOut() != null) {
+                if (runMethod.getOut() != null && _type != MMMethodType.TEST) {
                     List<Tuple2<MatrixIndexes, MatrixBlock>> tmp = runMethod.getOut().collect();
                 }
                 TimeStatisticsUtil.calculateStop(System.nanoTime());
@@ -108,6 +113,7 @@ public class Main {
         }
         TimeStatisticsUtil.totalTimeStop(System.nanoTime());
         // 4. output the execution time
+        System.out.println("Default parallelism:   " + sc.defaultParallelism());
         System.out.println("Check parameters time: " + String.format("%.9f", TimeStatisticsUtil.getParametersCheckTime()) + " s.");
         System.out.println("Load data time:        " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");
         System.out.println("Calculate time:        " + String.format("%.9f", TimeStatisticsUtil.getCalculateTime()) + " s.");
@@ -123,31 +129,11 @@ public class Main {
                 || (dataType.equals("data") && (row == -1 || middle == -1 || col == -1 || blockSize == -1)))
             throw new Exception("You must provide the follow parameters: -mmType -dataType -in1 -in2.\n" +
                     "if the value of -dataType is data, you also need to provide parameters: -row -middle -col -blockSize");
+        if (_type == MMMethodType.TEST && !dataType.equals("index"))
+            throw new Exception("Only dataType == 'index' can use the MMType == 'test' ");
     }
 
     public static void parseParameter(String[] args) throws Exception {
-        // hdfs test parameters:
-        //  -mmType CpMM -dataType data -in1 hdfs://localhost:9000/user/root/test/in1.csv -in2 hdfs://localhost:9000/user/root/test/in2.csv -row 100 -col 200 -middle 300 -blockSize 10
-        // -mmtype CpMM -datatype index -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv
-        // -mmtype MapMM -datatype data -in1 hdfs://localhost:9000/user/root/test/in1.csv -in2 hdfs://localhost:9000/user/root/test/in2.csv -cacheType left -aggType multi -row 100 -col 200 -middle 300 -blockSize 10
-        // -mmtype MapMM -datatype index -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv -cacheType left -aggType multi
-        // -twrite true -outputEmpty false
-
-        // local test parameters:
-        // -mmType CpMM -dataType data -blockSize 10 -row 100 -col 1 -middle 200 -in1 src/test/cache/Cpmm/in1.csv -in2 src/test/cache/Cpmm/in2.csv
-        // -mmType MapMM -dataType data -blockSize 10 -row 100 -col 1  -middle 200 -cacheType left -aggType multi -in1 src/test/cache/Cpmm/in1.csv -in2 src/test/cache/Cpmm/in2.csv
-        // -mmType CpMM -dataType index -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
-        // -mmType MapMM -dataType index -cacheType left -aggType multi -in1 src/main/resources/syntheticDataset/100x300x10_matrix_index.csv -in2 src/main/resources/syntheticDataset/300x100x10_matrix_index.csv
-/*
-spark-submit --deploy-mode cluster\
-             --master spark://6e1929967e39:7077 \
-             --class com.distributedMacPlayground.Main \
-             DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
-             -mmtype RMM \
-             -datatype index \
-             -in1 hdfs://localhost:9000/user/root/test/100x300x10_matrix_index.csv \
-             -in2 hdfs://localhost:9000/user/root/test/300x100x10_matrix_index.csv
-*/
         if (args.length % 2 != 0) throw new Exception("Some parameter have no value!");
         for (int i = 0; i < args.length; i += 2) {
             switch (args[i].toUpperCase()) {
@@ -170,6 +156,12 @@ spark-submit --deploy-mode cluster\
                             break;
                         case "ZIPMM":
                             _type = MMMethodType.ZipMM;
+                            break;
+                        case "CRMM":
+                            _type = MMMethodType.CRMM;
+                            break;
+                        case "TEST":
+                            _type = MMMethodType.TEST;
                             break;
                         default:
                             throw new Exception("have not supported this method!");
@@ -241,6 +233,9 @@ spark-submit --deploy-mode cluster\
                     break;
                 case "-PDF":
                     pdf = args[i + 1];
+                    break;
+                case "-SAVE":
+                    saveFilePath = args[i + 1];
                     break;
                 default:
                     throw new Exception("there do not support parameter called " + args[i]);

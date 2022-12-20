@@ -31,6 +31,8 @@ public class CommonConfig {
         PMM, // permutation matrix multiplication using distributed cache
         RMM, // replication matrix multiplication
         ZipMM, // zip matrix multiplication
+        CRMM,
+        TEST,
     }
 
     public enum SparkAggType {

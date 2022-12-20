@@ -33,7 +33,7 @@ public class FunctionTest {
     @Test
     public void generateLargeMatrix() throws Exception {
         // TODO: need to make sure that the index files are stored in CommonConfig.SYNTHETICDATASET_DIR
-        String indexFileName = CommonConfig.SYNTHETICDATASET_DIR + "100x300x10_matrix_index.csv";
+        String indexFileName = CommonConfig.SYNTHETICDATASET_DIR + "100x300x100/100x300x10_matrix_index.csv";
         SparkConf sparkConf = new SparkConf().setAppName("testFunction").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");

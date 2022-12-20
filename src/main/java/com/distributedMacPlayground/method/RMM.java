@@ -60,11 +60,11 @@ public class RMM {
         @Override
         public Iterator<Tuple2<TripleIndexes, MatrixBlock>> call(Tuple2<MatrixIndexes, MatrixBlock> arg0) throws Exception {
             LinkedList<Tuple2<TripleIndexes, MatrixBlock>> ret = new LinkedList<>();
-            MatrixIndexes ixIn = arg0._1();
+            MatrixIndexes ixIn = arg0._1(); // Index and Block
             MatrixBlock blkIn = arg0._2();
-            long numBlock = (long) Math.ceil((double) _len / _blen);
+            long numBlock = (long) Math.ceil((double) _len / _blen); // the number of the blocks
             if (_left) {
-                long i = ixIn.getRowIndex();
+                long i = ixIn.getRowIndex(); // get new Index
                 long k = ixIn.getColumnIndex();
                 for (long j = 1; j <= numBlock; j++) {
                     TripleIndexes tmptrix = new TripleIndexes(i, j, k);

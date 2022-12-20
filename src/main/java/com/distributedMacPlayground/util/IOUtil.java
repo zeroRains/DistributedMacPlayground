@@ -73,7 +73,7 @@ public class IOUtil {
 
     public static void saveMatrixAsCSVFile(JavaPairRDD<MatrixIndexes, MatrixBlock> in, String path, DataCharacteristics mc) {
         JavaRDD<String> csvData = RDDConverterUtils.binaryBlockToCsv(in, mc, new FileFormatPropertiesCSV(), true);
-        csvData.saveAsTextFile(path);
+        csvData.coalesce(1).saveAsTextFile(path); // merge to 1 file
     }
 
 

@@ -4,7 +4,6 @@ import com.distributedMacPlayground.CommonConfig.MMMethodType;
 import com.distributedMacPlayground.CommonConfig.CacheTpye;
 import com.distributedMacPlayground.CommonConfig.SparkAggType;
 import com.distributedMacPlayground.method.*;
-import com.distributedMacPlayground.util.ExecutionUtil;
 import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -100,6 +99,8 @@ public class RunMethod {
     private boolean _tRewrite = true;
     private MatrixBlock blkOut;
     private JavaPairRDD<MatrixIndexes, MatrixBlock> out;
+    private String outputIn1Path = null;
+    private String outputIn2Path = null;
 
 
     public boolean is_outputEmpty() {
@@ -120,6 +121,14 @@ public class RunMethod {
 
     public MatrixBlock getBlkOut() {
         return blkOut;
+    }
+
+    public void setOutputIn1Path(String outputIn1Path) {
+        this.outputIn1Path = outputIn1Path;
+    }
+
+    public void setOutputIn2Path(String outputIn2Path) {
+        this.outputIn2Path = outputIn2Path;
     }
 
     public JavaPairRDD<MatrixIndexes, MatrixBlock> getOut() {
@@ -143,6 +152,20 @@ public class RunMethod {
                 if (_cacheType == null || _aggType == null)
                     throw new Exception("please set _cacheType and _aggType");
                 blkOut = MapMM.execute(sc, in1, in2, mc1, mc2, _blockSize, _cacheType, _aggType, _outputEmpty);
+                break;
+            case CRMM:
+                out = CRMM.execute(in1, in2, mc1, mc2);
+                break;
+            case TEST:
+                if (outputIn1Path == null && outputIn2Path == null) {
+                    in1.collect();
+                    in2.collect();
+                    System.out.println("you can run here");
+                    return;
+                }
+                IOUtil.saveMatrixAsCSVFile(in1, outputIn1Path, mc1);
+                if (outputIn2Path != null)
+                    IOUtil.saveMatrixAsCSVFile(in2, outputIn2Path, mc2);
                 break;
             default:
                 throw new Exception("have not supported this method!");
