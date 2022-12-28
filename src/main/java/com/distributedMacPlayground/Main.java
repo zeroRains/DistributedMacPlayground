@@ -35,7 +35,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         // 1. create spark environment
-        SparkConf sparkConf = new SparkConf().setAppName("test"); //you can use .setMaster("local") to run in the local machine when you test the program.
+        SparkConf sparkConf = new SparkConf().setAppName("test").setMaster("local"); //you can use .setMaster("local") to run in the local machine when you test the program.
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
 

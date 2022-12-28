@@ -142,12 +142,16 @@ public class RunMethod {
         switch (_methodType) {
             case CpMM:
 //                out = CpMM.execute(in1, in2, mc1, mc2);
+                mm = new CpMM();
+                mm.execute(in1, in2, mc1, mc2);
                 break;
             case PMapMM:
                 out = PMapMM.execute(sc, in1, in2, mc1);
                 break;
             case RMM:
 //                out = RMM.execute(in1, in2, mc1, mc2);
+                mm = new RMM();
+                mm.execute(in1,in2,mc1,mc2);
                 break;
             case ZipMM:
                 blkOut = ZipMM.execute(in1, in2, _tRewrite);
@@ -155,6 +159,14 @@ public class RunMethod {
                 if (_cacheType == null || _aggType == null)
                     throw new Exception("please set _cacheType and _aggType");
 //                blkOut = MapMM.execute(sc, in1, in2, mc1, mc2, _blockSize, _cacheType, _aggType, _outputEmpty);
+                MapMM mapMM = new MapMM();
+                mapMM.setOutputEmpty(_outputEmpty);
+                mapMM.setType(_cacheType);
+                mapMM.set_aggType(_aggType);
+                mapMM.setSc(sc);
+                mapMM.setBlen(_blockSize);
+                mm = mapMM;
+                mm.execute(in1,in2,mc1,mc2);
                 break;
             case CRMM:
                 out = CRMM.execute(in1, in2, mc1, mc2);
