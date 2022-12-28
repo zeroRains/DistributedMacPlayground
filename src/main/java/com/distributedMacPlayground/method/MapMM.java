@@ -1,5 +1,6 @@
 package com.distributedMacPlayground.method;
 
+import com.distributedMacPlayground.CommonConfig;
 import com.distributedMacPlayground.CommonConfig.SparkAggType;
 import com.distributedMacPlayground.CommonConfig.CacheTpye;
 import com.distributedMacPlayground.util.ExecutionUtil;
@@ -28,26 +29,44 @@ import org.apache.sysds.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysds.runtime.matrix.operators.AggregateOperator;
 import org.apache.sysds.runtime.meta.DataCharacteristics;
 import org.apache.sysds.runtime.meta.MetaData;
+import org.codehaus.janino.Java;
 import scala.Tuple2;
 
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
-public class MapMM {
+public class MapMM implements MatrixMultiply{
+    private int blen = 1000;
+    private CacheTpye type = CacheTpye.LEFT;
+    private SparkAggType _aggType = SparkAggType.MULTI_BLOCK;
+    private JavaSparkContext sc = null;
+    private boolean outputEmpty = true;
 
-    public static MatrixBlock execute(JavaSparkContext sc,
-                                      JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
-                                      JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
-                                      DataCharacteristics mc1, DataCharacteristics mc2,
-                                      int blen, CacheTpye type, SparkAggType _aggType) throws Exception {
-        return execute(sc, in1, in2, mc1, mc2, blen, type, _aggType, true);
+    public void setBlen(int blen) {
+        this.blen = blen;
+    }
+
+    public void setType(CacheTpye type) {
+        this.type = type;
+    }
+
+    public void set_aggType(SparkAggType _aggType) {
+        this._aggType = _aggType;
+    }
+
+    public void setSc(JavaSparkContext sc) {
+        this.sc = sc;
+    }
+
+    public void setOutputEmpty(boolean outputEmpty) {
+        this.outputEmpty = outputEmpty;
     }
 
     // format a x b
-    public static MatrixBlock execute(JavaSparkContext sc, JavaPairRDD<MatrixIndexes, MatrixBlock> a,
-                                      JavaPairRDD<MatrixIndexes, MatrixBlock> b, DataCharacteristics mc1,
-                                      DataCharacteristics mc2, int blen, CacheTpye type, SparkAggType _aggType,
-                                      boolean outputEmpty) throws Exception {
+    @Override
+    public JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> a,
+                                                           JavaPairRDD<MatrixIndexes, MatrixBlock> b, DataCharacteristics mc1,
+                                                           DataCharacteristics mc2) throws Exception {
         JavaPairRDD<MatrixIndexes, MatrixBlock> rdd = type.isRight() ? a : b;
         JavaPairRDD<MatrixIndexes, MatrixBlock> bcast = type.isRight() ? b : a;
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1;
@@ -85,8 +104,8 @@ public class MapMM {
             in1 = in1.filter(new FilterNonEmptyBlocksFunction());
 
         if (_aggType == SparkAggType.SINGLE_BLOCK) {
-            JavaRDD<MatrixBlock> out = in1.map(new RDDMapMMFunction2(type, in2));
-            return RDDAggregateUtils.sumStable(out);
+            JavaPairRDD<MatrixIndexes, MatrixBlock> out = in1.mapToPair(new RDDMapMMFunction2(type, in2));
+            return RDDAggregateUtils.sumByKeyStable(out);
         } else {
             JavaPairRDD<MatrixIndexes, MatrixBlock> out = null;
             if (requiresFlatMapFunction(type, mcBc)) {
@@ -106,7 +125,7 @@ public class MapMM {
             if (_aggType == SparkAggType.MULTI_BLOCK)
                 out = RDDAggregateUtils.sumByKeyStable(out, false);
 
-            return SparkExecutionContext.toMatrixBlock(out, (int) mc1.getRows(), (int) mc2.getCols(), blen, -1);
+            return out;
         }
 
     }
@@ -142,8 +161,7 @@ public class MapMM {
         return (int) Math.min(numParts, (isLeft ? mcRdd.getNumColBlocks() : mcRdd.getNumRowBlocks()));
     }
 
-    private static class RDDMapMMFunction2 implements Function<Tuple2<MatrixIndexes, MatrixBlock>, MatrixBlock> {
-
+    private static class RDDMapMMFunction2 implements PairFunction<Tuple2<MatrixIndexes, MatrixBlock>, MatrixIndexes, MatrixBlock> {
         private final CacheTpye _type;
         private final AggregateBinaryOperator _op;
         private final PartitionedBroadcast<MatrixBlock> _pbc;
@@ -151,21 +169,22 @@ public class MapMM {
         public RDDMapMMFunction2(CacheTpye type, PartitionedBroadcast<MatrixBlock> in2) {
             _type = type;
             _pbc = in2;
-            AggregateOperator agg = new AggregateOperator(0, Plus.getPlusFnObject());
-            _op = new AggregateBinaryOperator(Multiply.getMultiplyFnObject(), agg);
+            _op = InstructionUtils.getMatMultOperator(1);
         }
 
         @Override
-        public MatrixBlock call(Tuple2<MatrixIndexes, MatrixBlock> arg0) throws Exception {
+        public Tuple2<MatrixIndexes, MatrixBlock> call(Tuple2<MatrixIndexes, MatrixBlock> arg0) throws Exception {
             MatrixIndexes ixIn = arg0._1();
             MatrixBlock blkIn = arg0._2();
 
             if (_type == CacheTpye.LEFT) {
                 MatrixBlock left = _pbc.getBlock(1, (int) ixIn.getRowIndex());
-                return OperationsOnMatrixValues.matMult(left, blkIn, new MatrixBlock(), _op);
+                return new Tuple2<>(new MatrixIndexes(1, 1),
+                        OperationsOnMatrixValues.matMult(left, blkIn, new MatrixBlock(), _op));
             } else {
                 MatrixBlock right = _pbc.getBlock((int) ixIn.getColumnIndex(), 1);
-                return OperationsOnMatrixValues.matMult(blkIn, right, new MatrixBlock(), _op);
+                return new Tuple2<>(new MatrixIndexes(1, 1),
+                        OperationsOnMatrixValues.matMult(blkIn, right, new MatrixBlock(), _op));
             }
         }
     }
@@ -271,4 +290,6 @@ public class MapMM {
             return new Tuple2<>(ixOut, blkOut);
         }
     }
+
+
 }

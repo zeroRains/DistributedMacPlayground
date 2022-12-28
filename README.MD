@@ -40,24 +40,42 @@ bin/spark-submit --deploy-mode cluster\
              --master spark://hadoop101:7077 \
              --class com.distributedMacPlayground.Main \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
-             -mmtype MapMM \
-             -datatype index \
-             -in1 hdfs://hadoop101:8020/user/hadoop/test/100000x1000x1000_matrix_index.csv \
-             -in2 hdfs://hadoop101:8020/user/hadoop/test/1000x100000x1000_matrix_index.csv
+             -mmtype rmm \
+             -datatype data \
+             -row 1000 \
+             -col 1000 \
+             -middle 100000 \
+             -blockSize 1000 \
+             -in1 hdfs://hadoop101:8020/user/hadoop/70000x70000.csv \
+             -in2 hdfs://hadoop101:8020/user/hadoop/70000x70000.csv 
 ```
+
+>修改spark 中的conf，添加`spark.local.dir  /tmp/spark-temp` ——解决磁盘溢出的问题
+>
+>```shell
+>spark.default.parallelism           12
+>spark.local.dir                     /data
+>spark.shuffle.file.buffer.kb        200
+>spark.serializer                    org.apache.spark.serializer.KryoSerializer
+>spark.kryoserializer.buffer.max.mb  100
+>```
+>
+>1. 将index物化成hadoop中的数据
+>2. 将hadoop放到系统盘中，避免下次再次生成数据
+>3. 系统500，额外510
 
 local submit test：
 
 ```shell
 bin/spark-submit --deploy-mode cluster\
-             --master spark://28f256eda07a:7077 \
+             --master spark://230153b45b98:7077 \
              --class com.distributedMacPlayground.Main \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
              -mmtype test \
              -datatype index \
-             -in1 hdfs://28f256eda07a:9000/user/root/test/100x300x10_matrix_index.csv \
-             -in2 hdfs://28f256eda07a:9000/user/root/test/300x100x10_matrix_index.csv \
-             -save hdfs://28f256eda07a:9000/user/root/test/data
+             -in1 hdfs://230153b45b98:9000/user/root/100x300x10_matrix_index.csv \
+             -in2 hdfs://230153b45b98:9000/user/root/300x100x10_matrix_index.csv \
+             -save hdfs://230153b45b98:9000/user/root/data/100x300x10_matrix_data.csv
 ```
 
 

@@ -93,7 +93,7 @@ public class RunMethod {
         this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
     }
 
-
+    private MatrixMultiply mm = null;
     private final int _blockSize;
     private boolean _outputEmpty = false;
     private boolean _tRewrite = true;
@@ -102,6 +102,9 @@ public class RunMethod {
     private String outputIn1Path = null;
     private String outputIn2Path = null;
 
+    public void setMm(MatrixMultiply mm) {
+        this.mm = mm;
+    }
 
     public boolean is_outputEmpty() {
         return _outputEmpty;
@@ -151,7 +154,7 @@ public class RunMethod {
             case MapMM:
                 if (_cacheType == null || _aggType == null)
                     throw new Exception("please set _cacheType and _aggType");
-                blkOut = MapMM.execute(sc, in1, in2, mc1, mc2, _blockSize, _cacheType, _aggType, _outputEmpty);
+//                blkOut = MapMM.execute(sc, in1, in2, mc1, mc2, _blockSize, _cacheType, _aggType, _outputEmpty);
                 break;
             case CRMM:
                 out = CRMM.execute(in1, in2, mc1, mc2);

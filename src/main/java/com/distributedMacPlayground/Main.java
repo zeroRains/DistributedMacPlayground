@@ -51,7 +51,6 @@ public class Main {
 
         if (dataType.equals("data")) {
             if (_type != MMMethodType.MapMM) {
-
                 TimeStatisticsUtil.loadDataStart(System.nanoTime());
                 RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1Path, in2Path);
                 runMethod.set_tRewrite(_tWrite);
