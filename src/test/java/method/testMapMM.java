@@ -26,7 +26,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(100, 200, 200, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(100, 200, 200, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -58,7 +58,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(10, 10, 10, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(10, 10, 10, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -91,7 +91,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(10, 100, 100, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(10, 100, 100, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -123,7 +123,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.SINGLE_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(50, 70, 70, 70, 1, 1, 2, 2, 5, 5, "uniform", 1023, 100);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(50, 70, 70, 70, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -155,7 +155,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.SINGLE_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(50, 70, 70, 70, 1, 1, 2, 2, 5, 5, "uniform", 1023, 100);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(50, 70, 70, 70, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -188,7 +188,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(300, 200, 200, 100, 1, 1, 2, 2, 5, 5, "uniform", 1023, 1);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(300, 200, 200, 100, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -219,7 +219,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(300, 10, 10, 10, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(300, 10, 10, 10, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -250,7 +250,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(300, 100, 100, 10, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(300, 100, 100, 10, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);
@@ -281,7 +281,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(10, 100, 100, 300, 0.1, 0.1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(10, 100, 100, 300, 0.1, 0.1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);

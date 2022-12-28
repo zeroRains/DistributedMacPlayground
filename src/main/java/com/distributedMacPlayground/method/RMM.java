@@ -22,10 +22,11 @@ import scala.Tuple2;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class RMM {
-    public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
-                                                                  JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
-                                                                  DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
+public class RMM implements MatrixMultiply{
+    @Override
+    public JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
+                                                           JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
+                                                           DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
         JavaPairRDD<TripleIndexes, MatrixBlock> tmp1 = in1.flatMapToPair(new RmmReplicateFunction(mc2.getCols(), mc2.getBlocksize(), true));
         JavaPairRDD<TripleIndexes, MatrixBlock> tmp2 = in2.flatMapToPair(new RmmReplicateFunction(mc1.getRows(), mc1.getBlocksize(), false));
         DataCharacteristics mcOut = new MatrixCharacteristics(mc1.getRows(), mc2.getCols(), mc1.getBlocksize());

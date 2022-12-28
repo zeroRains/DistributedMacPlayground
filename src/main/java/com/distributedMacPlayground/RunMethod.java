@@ -141,13 +141,13 @@ public class RunMethod {
     public void execute() throws Exception {
         switch (_methodType) {
             case CpMM:
-                out = CpMM.execute(in1, in2, mc1, mc2);
+//                out = CpMM.execute(in1, in2, mc1, mc2);
                 break;
             case PMapMM:
                 out = PMapMM.execute(sc, in1, in2, mc1);
                 break;
             case RMM:
-                out = RMM.execute(in1, in2, mc1, mc2);
+//                out = RMM.execute(in1, in2, mc1, mc2);
                 break;
             case ZipMM:
                 blkOut = ZipMM.execute(in1, in2, _tRewrite);

@@ -14,11 +14,11 @@ import org.apache.sysds.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysds.runtime.meta.DataCharacteristics;
 import scala.Tuple2;
 
-public class CpMM {
-
-    public static JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
-                                                                  JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
-                                                                  DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
+public class CpMM implements MatrixMultiply {
+    @Override
+    public JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
+                                                           JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
+                                                           DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
         if (in1.isEmpty() || in2.isEmpty())
             throw new Exception("Input is empty!");
         if (mc1.getCols() != mc2.getRows())
