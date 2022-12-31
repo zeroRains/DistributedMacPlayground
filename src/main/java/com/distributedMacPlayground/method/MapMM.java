@@ -1,13 +1,10 @@
 package com.distributedMacPlayground.method;
 
-import com.distributedMacPlayground.CommonConfig;
-import com.distributedMacPlayground.CommonConfig.SparkAggType;
-import com.distributedMacPlayground.CommonConfig.CacheTpye;
+import com.distributedMacPlayground.config.CommonConfig.SparkAggType;
+import com.distributedMacPlayground.config.CommonConfig.CacheTpye;
 import com.distributedMacPlayground.util.ExecutionUtil;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.sysds.common.Types;
@@ -29,7 +26,6 @@ import org.apache.sysds.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysds.runtime.matrix.operators.AggregateOperator;
 import org.apache.sysds.runtime.meta.DataCharacteristics;
 import org.apache.sysds.runtime.meta.MetaData;
-import org.codehaus.janino.Java;
 import scala.Tuple2;
 
 import java.util.Iterator;

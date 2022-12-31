@@ -1,11 +1,13 @@
 package com.distributedMacPlayground;
 
+import com.distributedMacPlayground.config.CommonConfig;
+import com.distributedMacPlayground.runtime.RunMethod;
 import com.distributedMacPlayground.util.RandomMatrixRDDGenerator;
 import com.distributedMacPlayground.util.TimeStatisticsUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import com.distributedMacPlayground.CommonConfig.MMMethodType;
+import com.distributedMacPlayground.config.CommonConfig.MMMethodType;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 import scala.Tuple2;

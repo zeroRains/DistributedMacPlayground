@@ -1,6 +1,6 @@
 //package Function;
 //
-//import com.distributedMacPlayground.CommonConfig;
+//import com.distributedMacPlayground.config.CommonConfig;
 //import com.distributedMacPlayground.util.IOUtil;
 //import com.distributedMacPlayground.util.RandomMatrixRDDGenerator;
 //import org.apache.spark.SparkConf;

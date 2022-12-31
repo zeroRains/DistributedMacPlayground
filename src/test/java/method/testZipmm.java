@@ -1,6 +1,6 @@
 package method;
 
-import com.distributedMacPlayground.CommonConfig;
+import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.method.ZipMM;
 import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.SparkConf;

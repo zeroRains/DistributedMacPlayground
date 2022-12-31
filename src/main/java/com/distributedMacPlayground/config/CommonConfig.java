@@ -1,4 +1,4 @@
-package com.distributedMacPlayground;
+package com.distributedMacPlayground.config;
 
 public class CommonConfig {
     public static String OUTPUT_BUFFER_DIR = "src/test/cache/";

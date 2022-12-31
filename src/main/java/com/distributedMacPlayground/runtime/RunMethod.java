@@ -1,8 +1,8 @@
-package com.distributedMacPlayground;
+package com.distributedMacPlayground.runtime;
 
-import com.distributedMacPlayground.CommonConfig.MMMethodType;
-import com.distributedMacPlayground.CommonConfig.CacheTpye;
-import com.distributedMacPlayground.CommonConfig.SparkAggType;
+import com.distributedMacPlayground.config.CommonConfig.MMMethodType;
+import com.distributedMacPlayground.config.CommonConfig.CacheTpye;
+import com.distributedMacPlayground.config.CommonConfig.SparkAggType;
 import com.distributedMacPlayground.method.*;
 import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.api.java.JavaPairRDD;

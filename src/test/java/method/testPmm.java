@@ -1,6 +1,6 @@
 package method;
 
-import com.distributedMacPlayground.CommonConfig;
+import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.method.PMM;
 import com.distributedMacPlayground.util.ExecutionUtil;
 import com.distributedMacPlayground.util.IOUtil;

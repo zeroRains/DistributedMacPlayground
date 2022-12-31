@@ -1,16 +1,12 @@
 package com.distributedMacPlayground.util;
 
-import com.distributedMacPlayground.CommonConfig;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 import scala.Tuple2;
-
-import java.util.Iterator;
 
 public class RandomMatrixRDDGenerator {
     public double min;

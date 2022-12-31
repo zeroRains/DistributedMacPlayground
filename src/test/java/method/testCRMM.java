@@ -1,6 +1,6 @@
 package method;
 
-import com.distributedMacPlayground.CommonConfig;
+import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.method.CRMM;
 import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.SparkConf;

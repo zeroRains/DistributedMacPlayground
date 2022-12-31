@@ -1,6 +1,6 @@
 package method;
 
-import com.distributedMacPlayground.CommonConfig;
+import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.method.MatrixMultiply;
 import com.distributedMacPlayground.method.RMM;
 import com.distributedMacPlayground.util.IOUtil;
