@@ -77,7 +77,7 @@ public class GNMF {
             JavaPairRDD<MatrixIndexes, MatrixBlock> in,
             JavaPairRDD<MatrixIndexes, MatrixBlock> factor1,
             JavaPairRDD<MatrixIndexes, MatrixBlock> factor2) {
-        JavaPairRDD<MatrixIndexes, MatrixBlock> up = Operator.elementWiseMultiply(factor2,
+        JavaPairRDD<MatrixIndexes, MatrixBlock> up = Operator.elementWiseProduct(factor2,
                 Operator.matrixMultiply(Operator.transpose(factor1), in));
         JavaPairRDD<MatrixIndexes, MatrixBlock> down = Operator.matrixMultiply(
                 Operator.matrixMultiply(Operator.transpose(factor1), factor1),
@@ -89,7 +89,7 @@ public class GNMF {
             JavaPairRDD<MatrixIndexes, MatrixBlock> in,
             JavaPairRDD<MatrixIndexes, MatrixBlock> factor1,
             JavaPairRDD<MatrixIndexes, MatrixBlock> factor2) {
-        JavaPairRDD<MatrixIndexes, MatrixBlock> up = Operator.elementWiseMultiply(factor1,
+        JavaPairRDD<MatrixIndexes, MatrixBlock> up = Operator.elementWiseProduct(factor1,
                 Operator.matrixMultiply(in, Operator.transpose(factor2)));
         JavaPairRDD<MatrixIndexes, MatrixBlock> down = Operator.matrixMultiply(
                 Operator.matrixMultiply(factor1, factor2), Operator.transpose(factor2));
