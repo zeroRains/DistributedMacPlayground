@@ -28,11 +28,12 @@ public class OperatorTest {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getCols(), (int) data.mc1.getRows(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Operator");
+        sc.stop();
     }
 
     @Test
     public void elementWiseMultiply() throws Exception {
-        SparkConf sparkConf = new SparkConf().setAppName("testTranspose").setMaster("local");
+        SparkConf sparkConf = new SparkConf().setAppName("testMultiply").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
         int blen = 2;
@@ -47,11 +48,12 @@ public class OperatorTest {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getCols(), (int) data.mc1.getRows(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Operator");
+        sc.stop();
     }
 
     @Test
     public void elementWiseDivision() throws Exception {
-        SparkConf sparkConf = new SparkConf().setAppName("testTranspose").setMaster("local");
+        SparkConf sparkConf = new SparkConf().setAppName("testDivision").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
         int blen = 2;
@@ -66,5 +68,6 @@ public class OperatorTest {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getCols(), (int) data.mc1.getRows(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Operator");
+        sc.stop();
     }
 }
