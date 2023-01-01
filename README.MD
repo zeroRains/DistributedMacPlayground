@@ -78,6 +78,20 @@ bin/spark-submit --deploy-mode cluster\
              -save hdfs://230153b45b98:9000/user/root/data/100x300x10_matrix_data.csv
 ```
 
+GNMF submit test：
+
+```shell
+bin/spark-submit --deploy-mode cluster\
+             --master spark://7d88ca6d3cf1:7077 \
+             --class com.distributedMacPlayground.GNMF \
+             DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
+             -type RMM \
+             -row 4 \
+             -col 4 \
+             -middle 1 \
+             -blocksize 2
+```
+
 
 
 The main parameters can write by considering the follow table.

@@ -32,7 +32,7 @@ public class GNMF {
     static int middle = 1;
     static JavaSparkContext sc;
 
-    static int iter = 100000;
+    static int iter = 10;
     static int sparse = 1;
     static int min = 1;
     static int max = 2;
@@ -53,6 +53,8 @@ public class GNMF {
 
         SparkConf conf = new SparkConf().setAppName("GNMF");
         sc = new JavaSparkContext(conf);
+        sc.setLogLevel("ERROR");
+
         if (mm instanceof MapMM) {
             MapMM mapMM = (MapMM) mm;
             mapMM.setSc(sc);
@@ -67,17 +69,18 @@ public class GNMF {
     }
 
     private static void executeGNMF(JavaPairRDD<MatrixIndexes, MatrixBlock> in) throws Exception {
-        JavaPairRDD<MatrixIndexes, MatrixBlock> factor1 = generatorMatrixRDD(row, middle);
-        JavaPairRDD<MatrixIndexes, MatrixBlock> factor2 = generatorMatrixRDD(middle, col);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> factor1 = generatorMatrixRDD(row, middle, 1);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> factor2 = generatorMatrixRDD(middle, col, 2);
 
         for (int i = 0; i < iter; i++) {
-            factor1 = updateFactor1(in, factor1, factor2);
-            factor2 = updateFactor2(in, factor1, factor2);
-            MatrixBlock factor1Res = SparkExecutionContext.toMatrixBlock(factor1, row, middle, blockSize, -1);
-            MatrixBlock factor2Res = SparkExecutionContext.toMatrixBlock(factor2, middle, col, blockSize, -1);
+            JavaPairRDD<MatrixIndexes, MatrixBlock> factor11 = updateFactor1(in, factor1, factor2);
+            JavaPairRDD<MatrixIndexes, MatrixBlock> factor22 = updateFactor2(in, factor1, factor2);
+            MatrixBlock factor1Res = SparkExecutionContext.toMatrixBlock(factor11, row, middle, blockSize, -1);
+            MatrixBlock factor2Res = SparkExecutionContext.toMatrixBlock(factor22, middle, col, blockSize, -1);
             factor1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor1Res, blockSize);
             factor2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor2Res, blockSize);
         }
+        System.out.println();
     }
 
     private static JavaPairRDD<MatrixIndexes, MatrixBlock> updateFactor2(
@@ -104,13 +107,14 @@ public class GNMF {
         return Operator.elementWiseDivision(up, down);
     }
 
-    private static JavaPairRDD<MatrixIndexes, MatrixBlock> generatorMatrixRDD(int r, int c) {
+    private static JavaPairRDD<MatrixIndexes, MatrixBlock> generatorMatrixRDD(int r, int c, int n) {
         int rowBlk = (int) Math.ceil(1.0 * r / blockSize);
         int colBlk = (int) Math.ceil(1.0 * c / blockSize);
-        List<Integer> list = new ArrayList<>();
-        for (int i = 0; i < rowBlk * colBlk; i++)
-            list.add(i);
-        return sc.parallelize(list).mapToPair(new generatorRDDMatrixFunction(r, c));
+        List<MatrixIndexes> list = new ArrayList<>();
+        for (int i = 1; i <= rowBlk; i++)
+            for (int j = 1; j <= colBlk; j++)
+                list.add(new MatrixIndexes(i, j));
+        return sc.parallelize(list).mapToPair(new generatorRDDMatrixFunction(r, c, n));
     }
 
     private static JavaPairRDD<MatrixIndexes, MatrixBlock> loadData() {
@@ -177,24 +181,25 @@ public class GNMF {
         }
     }
 
-    private static class generatorRDDMatrixFunction implements PairFunction<Integer, MatrixIndexes, MatrixBlock> {
+    private static class generatorRDDMatrixFunction implements PairFunction<MatrixIndexes, MatrixIndexes, MatrixBlock> {
         int r;
         int c;
+        int name;
 
-        public generatorRDDMatrixFunction(int r, int c) {
+        public generatorRDDMatrixFunction(int r, int c, int n) {
             this.r = r;
             this.c = c;
+            name = n;
         }
 
         @Override
-        public Tuple2<MatrixIndexes, MatrixBlock> call(Integer arg) throws Exception {
-            int rowIndex = arg / blockSize + 1;
-            int colIndex = arg % blockSize + 1;
+        public Tuple2<MatrixIndexes, MatrixBlock> call(MatrixIndexes arg) throws Exception {
+            int rowIndex = (int) arg.getRowIndex();
+            int colIndex = (int) arg.getColumnIndex();
             int rNum = rowIndex * blockSize > r ? r - (rowIndex - 1) * blockSize : blockSize;
             int cNum = colIndex * blockSize > c ? c - (colIndex - 1) * blockSize : blockSize;
-            MatrixIndexes mi = new MatrixIndexes(rowIndex, colIndex);
-            MatrixBlock mb = MatrixBlock.randOperations(blockSize, blockSize, sparse, min, max, pdf, seed);
-            return new Tuple2<>(mi, mb);
+            MatrixBlock mb = MatrixBlock.randOperations(rNum, cNum, sparse, min, max, pdf, seed);
+            return new Tuple2<>(arg, mb);
         }
     }
 }
