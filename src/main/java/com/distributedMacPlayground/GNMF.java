@@ -28,7 +28,7 @@ public class GNMF {
     static String filePath = null;
     static int row = -1;
     static int col = -1;
-    static int blockSize = -1;
+    static int blockSize = 1000;
     static int middle = 1;
     static JavaSparkContext sc;
 
@@ -51,7 +51,7 @@ public class GNMF {
         parseParameter(args);
         checkParameter();
 
-        SparkConf conf = new SparkConf().setAppName("GNMF");
+        SparkConf conf = new SparkConf().setAppName("GNMF").setMaster("local");
         sc = new JavaSparkContext(conf);
         sc.setLogLevel("ERROR");
 
@@ -80,7 +80,6 @@ public class GNMF {
             factor1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor1Res, blockSize);
             factor2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor2Res, blockSize);
         }
-        System.out.println();
     }
 
     private static JavaPairRDD<MatrixIndexes, MatrixBlock> updateFactor2(
@@ -137,8 +136,8 @@ public class GNMF {
 
 
     private static void checkParameter() throws Exception {
-        if (col == -1 || row == -1 || blockSize == -1 || mm == null)
-            throw new Exception("You must provide the '-col', '-type','-row' and '-blocksize' parameter.");
+        if (col == -1 || row == -1 || mm == null)
+            throw new Exception("You must provide the '-col', '-type', and '-row' parameter.");
     }
 
     public static void parseParameter(String[] args) throws Exception {
