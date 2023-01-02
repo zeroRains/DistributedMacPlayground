@@ -33,7 +33,7 @@ public class GNMF {
     static int middle = 1;
     static JavaSparkContext sc;
 
-    static int iter = 10;
+    static int iter = 100;
     static int sparse = 1;
     static int min = 1;
     static int max = 2;
@@ -52,7 +52,7 @@ public class GNMF {
         parseParameter(args);
         checkParameter();
 
-        SparkConf conf = new SparkConf().setAppName("GNMF");
+        SparkConf conf = new SparkConf().setAppName("GNMF").setMaster("local");
         sc = new JavaSparkContext(conf);
         sc.setLogLevel("ERROR");
 
@@ -74,12 +74,14 @@ public class GNMF {
         JavaPairRDD<MatrixIndexes, MatrixBlock> factor2 = generatorMatrixRDD(middle, col);
         for (int i = 0; i < iter; i++) {
             System.out.println("******************  iter " + i + "  ******************");
-            JavaPairRDD<MatrixIndexes, MatrixBlock> factor11 = updateFactor1(in, factor1, factor2);
-            JavaPairRDD<MatrixIndexes, MatrixBlock> factor22 = updateFactor2(in, factor1, factor2);
-            MatrixBlock factor1Res = SparkExecutionContext.toMatrixBlock(factor11, row, middle, blockSize, -1);
-            MatrixBlock factor2Res = SparkExecutionContext.toMatrixBlock(factor22, middle, col, blockSize, -1);
+            factor1 = updateFactor1(in, factor1, factor2);
+            factor2 = updateFactor2(in, factor1, factor2);
+            MatrixBlock factor1Res = SparkExecutionContext.toMatrixBlock(factor1, row, middle, blockSize, -1);
+            MatrixBlock factor2Res = SparkExecutionContext.toMatrixBlock(factor2, middle, col, blockSize, -1);
             factor1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor1Res, blockSize);
             factor2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor2Res, blockSize);
+            if (i == iter-1)
+                System.out.println();
         }
     }
 
