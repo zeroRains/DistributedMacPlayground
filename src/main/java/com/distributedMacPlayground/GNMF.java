@@ -1,5 +1,6 @@
 package com.distributedMacPlayground;
 
+import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.method.CpMM;
 import com.distributedMacPlayground.method.MapMM;
 import com.distributedMacPlayground.method.MatrixMultiply;
@@ -29,13 +30,16 @@ public class GNMF {
     static int blockSize = 1000;
     static int middle = 1;
     static JavaSparkContext sc;
-
     static int iter = 100;
-    static int sparse = 1;
-    static int min = 1;
-    static int max = 2;
+    static double sparse = 1;
+    static int min = 0;
+    static int max = 1;
     static String pdf = "uniform";
     static int seed = -1;
+    static CommonConfig.CacheTpye cacheType = CommonConfig.CacheTpye.LEFT;
+    static CommonConfig.SparkAggType aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
+    static boolean tWrite = true;
+    static boolean outputEmpty = false;
     static MatrixMultiply mm = null;
     static DataCharacteristics mc1 = null;
     static DataCharacteristics mc2 = null;
@@ -48,33 +52,43 @@ public class GNMF {
 
 
     public static void main(String[] args) throws Exception {
+        // 1. parse the parameters
         TimeStatisticsUtil.totalStart(System.nanoTime());
         TimeStatisticsUtil.parametersCheckStart(System.nanoTime());
         parseParameter(args);
         checkParameter();
         TimeStatisticsUtil.parametersCheckStop(System.nanoTime());
 
+        // 2. create the spark environment
         SparkConf conf = new SparkConf().setAppName("GNMF").setMaster("local");
         sc = new JavaSparkContext(conf);
         sc.setLogLevel("ERROR");
 
+        // external：load parameters in MapMM
         if (mm instanceof MapMM) {
             MapMM mapMM = (MapMM) mm;
             mapMM.setSc(sc);
+            mapMM.setType(cacheType);
+            mapMM.set_aggType(aggType);
+            mapMM.setOutputEmpty(outputEmpty);
+            mapMM.setBlen(blockSize);
             mm = mapMM;
         }
 
+        // 3. load the input data in a RDD format
         TimeStatisticsUtil.loadDataStart(System.nanoTime());
         JavaPairRDD<MatrixIndexes, MatrixBlock> in = loadData();
         TimeStatisticsUtil.loadDataStop(System.nanoTime());
         System.out.println("finished load");
+
+        // 4. execute the GNMF
         TimeStatisticsUtil.calculateStart(System.nanoTime());
         executeGNMF(in);
         TimeStatisticsUtil.calculateStop(System.nanoTime());
         TimeStatisticsUtil.totalTimeStop(System.nanoTime());
         System.out.println("finish calculate");
 
-        // 4. output the execution time
+        // 5. output the execution time
         System.out.println("Default parallelism:   " + sc.defaultParallelism());
         System.out.println("Check parameters time: " + String.format("%.9f", TimeStatisticsUtil.getParametersCheckTime()) + " s.");
         System.out.println("Load data time:        " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");
@@ -187,6 +201,53 @@ public class GNMF {
                     break;
                 case "-BLOCKSIZE":
                     blockSize = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-ITER":
+                    iter = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-CACHETYPE":
+                    switch (args[i + 1].toUpperCase()) {
+                        case "LEFT":
+                            cacheType = CommonConfig.CacheTpye.LEFT;
+                            break;
+                        case "RIGHT":
+                            cacheType = CommonConfig.CacheTpye.RIGHT;
+                        default:
+                            throw new Exception("There do not support " + args[i + 1] + " in cacheType");
+                    }
+                    break;
+                case "-AGGTYPE":
+                    switch (args[i + 1].toUpperCase()) {
+                        case "MULTI":
+                            aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
+                            break;
+                        case "SINGLE":
+                            aggType = CommonConfig.SparkAggType.SINGLE_BLOCK;
+                            break;
+                        default:
+                            throw new Exception("There do not support " + args[i + 1] + " in aggType!");
+                    }
+                    break;
+                case "-TWRITE":
+                    tWrite = Boolean.parseBoolean(args[i + 1]);
+                    break;
+                case "-OUTPUTEMPTY":
+                    outputEmpty = Boolean.parseBoolean(args[i + 1]);
+                    break;
+                case "-SPASE":
+                    sparse = Double.parseDouble(args[i + 1]);
+                    break;
+                case "-MIN":
+                    min = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-MAX":
+                    max = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-PDF":
+                    pdf = args[i + 1];
+                    break;
+                case "-SEED":
+                    seed = Integer.parseInt(args[i + 1]);
                     break;
                 default:
                     throw new Exception("We have not supported this parameter");

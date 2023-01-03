@@ -224,7 +224,7 @@ public class Main {
                 case "-MAX":
                     max = Double.parseDouble(args[i + 1]);
                     break;
-                case "-SPARSITY":
+                case "-SPARSE":
                     sparsity = Double.parseDouble(args[i + 1]);
                     if (sparsity < 0 || sparsity > 1)
                         throw new Exception("sparsity need to range in [0,1]");
