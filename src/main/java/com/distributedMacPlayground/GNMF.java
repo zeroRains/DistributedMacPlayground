@@ -1,13 +1,12 @@
 package com.distributedMacPlayground;
 
-import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.method.CpMM;
 import com.distributedMacPlayground.method.MapMM;
 import com.distributedMacPlayground.method.MatrixMultiply;
 import com.distributedMacPlayground.method.RMM;
 import com.distributedMacPlayground.operator.Operator;
 import com.distributedMacPlayground.util.IOUtil;
-import com.sun.tools.internal.ws.wsdl.document.soap.SOAPUse;
+import com.distributedMacPlayground.util.TimeStatisticsUtil;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -21,8 +20,6 @@ import scala.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
 
 public class GNMF {
@@ -46,11 +43,16 @@ public class GNMF {
     static DataCharacteristics mc2T = null;
     static DataCharacteristics mcIn = null;
     static DataCharacteristics mcMiddle = null;
+    static MatrixBlock factor1Res = null;
+    static MatrixBlock factor2Res = null;
 
 
     public static void main(String[] args) throws Exception {
+        TimeStatisticsUtil.totalStart(System.nanoTime());
+        TimeStatisticsUtil.parametersCheckStart(System.nanoTime());
         parseParameter(args);
         checkParameter();
+        TimeStatisticsUtil.parametersCheckStop(System.nanoTime());
 
         SparkConf conf = new SparkConf().setAppName("GNMF").setMaster("local");
         sc = new JavaSparkContext(conf);
@@ -62,10 +64,23 @@ public class GNMF {
             mm = mapMM;
         }
 
+        TimeStatisticsUtil.loadDataStart(System.nanoTime());
         JavaPairRDD<MatrixIndexes, MatrixBlock> in = loadData();
+        TimeStatisticsUtil.loadDataStop(System.nanoTime());
         System.out.println("finished load");
+        TimeStatisticsUtil.calculateStart(System.nanoTime());
         executeGNMF(in);
+        TimeStatisticsUtil.calculateStop(System.nanoTime());
+        TimeStatisticsUtil.totalTimeStop(System.nanoTime());
         System.out.println("finish calculate");
+
+        // 4. output the execution time
+        System.out.println("Default parallelism:   " + sc.defaultParallelism());
+        System.out.println("Check parameters time: " + String.format("%.9f", TimeStatisticsUtil.getParametersCheckTime()) + " s.");
+        System.out.println("Load data time:        " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");
+        System.out.println("Calculate time:        " + String.format("%.9f", TimeStatisticsUtil.getCalculateTime()) + " s.");
+        System.out.println("Total time:            " + String.format("%.9f", TimeStatisticsUtil.getTotalTime()) + " s.");
+        System.out.println("finish GNMF.");
         sc.stop();
     }
 
@@ -76,13 +91,9 @@ public class GNMF {
             System.out.println("******************  iter " + i + "  ******************");
             factor1 = updateFactor1(in, factor1, factor2);
             factor2 = updateFactor2(in, factor1, factor2);
-            MatrixBlock factor1Res = SparkExecutionContext.toMatrixBlock(factor1, row, middle, blockSize, -1);
-            MatrixBlock factor2Res = SparkExecutionContext.toMatrixBlock(factor2, middle, col, blockSize, -1);
-            factor1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor1Res, blockSize);
-            factor2 = SparkExecutionContext.toMatrixJavaPairRDD(sc, factor2Res, blockSize);
-            if (i == iter-1)
-                System.out.println();
         }
+        factor1Res = SparkExecutionContext.toMatrixBlock(factor1, row, middle, blockSize, -1);
+        factor2Res = SparkExecutionContext.toMatrixBlock(factor2, middle, col, blockSize, -1);
     }
 
     private static JavaPairRDD<MatrixIndexes, MatrixBlock> updateFactor2(
