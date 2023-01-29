@@ -31,5 +31,6 @@ public class testCRMM {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc2.getCols(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "CRMM/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/CRMM");
+        sc.close();
     }
 }

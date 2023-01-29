@@ -36,28 +36,54 @@ spark-submit --deploy-mode cluster\
 The example of  full command:
 
 ```shell
+gangliastart
+
+systemctl start gmond.service && ssh hadoop102 "systemctl start gmond.service" && ssh hadoop103 "systemctl start gmond.service"
+
+sudo systemctl stop gmond.service && ssh hadoop102 "sudo systemctl stop gmond.service" && ssh hadoop103 "sudo systemctl stop gmond.service"
+```
+
+```shell
 bin/spark-submit --deploy-mode cluster\
+             --conf spark.driver.host=hadoop101 \
              --master spark://hadoop101:7077 \
              --class com.distributedMacPlayground.Main \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
-             -mmtype rmm \
+             -mmtype CPMM \
+             -datatype index \
+             -in1 hdfs://hadoop101:8020/user/hadoop/100x300x10_matrix_index.csv \
+             -in2 hdfs://hadoop101:8020/user/hadoop/300x100x10_matrix_index.csv 
+```
+
+
+
+```shell
+bin/spark-submit --deploy-mode cluster\
+             --conf spark.driver.host=hadoop101 \
+             --master spark://hadoop101:7077 \
+             --class com.distributedMacPlayground.Main \
+             debug.jar \
+             -mmtype MapMM \
              -datatype data \
-             -row 1000 \
-             -col 1000 \
+             -row 10000 \
+             -col 10000 \
              -middle 100000 \
              -blockSize 1000 \
-             -in1 hdfs://hadoop101:8020/user/hadoop/70000x70000.csv \
-             -in2 hdfs://hadoop101:8020/user/hadoop/70000x70000.csv 
+             -in1 hdfs://hadoop101:8020/user/hadoop/10000x100000x0.2.csv \
+             -in2 hdfs://hadoop101:8020/user/hadoop/100000x10000x0.2.csv \
+             -outputempty true
 ```
 
 >修改spark 中的conf，添加`spark.local.dir  /tmp/spark-temp` ——解决磁盘溢出的问题
 >
 >```shell
->spark.default.parallelism           12
->spark.local.dir                     /data
->spark.shuffle.file.buffer.kb        200
->spark.serializer                    org.apache.spark.serializer.KryoSerializer
->spark.kryoserializer.buffer.max.mb  100
+>spark.local.dir                     /opt/module/spark/tmp
+>spark.executor.memory               30925M
+>spark.driver.memory                 30925M
+>spark.driver.maxResultSize          45G
+>spark.driver.cores                  4
+>spark.driver.host 	                hadoop101
+>spark.ui.enabled                    true
 >```
 >
 >1. 将index物化成hadoop中的数据
@@ -67,15 +93,19 @@ bin/spark-submit --deploy-mode cluster\
 local submit test：
 
 ```shell
-bin/spark-submit --deploy-mode cluster\
+bin/spark-submit --deploy-mode cluster \
              --master spark://230153b45b98:7077 \
              --class com.distributedMacPlayground.Main \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
-             -mmtype test \
-             -datatype index \
-             -in1 hdfs://230153b45b98:9000/user/root/100x300x10_matrix_index.csv \
-             -in2 hdfs://230153b45b98:9000/user/root/300x100x10_matrix_index.csv \
-             -save hdfs://230153b45b98:9000/user/root/data/100x300x10_matrix_data.csv
+             -mmtype cpmm \
+             -datatype data \
+             -row 100000 \
+             -col 100000 \
+             -middle 1000 \
+             -blockSize 1000 \
+             -in1 hdfs://230153b45b98:9000/user/root/10Kx100K.csv \
+             -in2 hdfs://230153b45b98:9000/user/root/100Kx10K.csv \
+             -save hdfs://230153b45b98:9000/user/root
 ```
 
 GNMF submit test：
@@ -85,12 +115,11 @@ bin/spark-submit --deploy-mode cluster\
              --master spark://7d88ca6d3cf1:7077 \
              --class com.distributedMacPlayground.GNMF \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
-             -path hdfs://7d88ca6d3cf1:9000/user/root/soc-buzznet.mtx \
              -type RMM \
-             -row 101163 \
-             -col 101163 \
-             -middle 1 \
-             -BLOCKSIZE 1000
+             -row 100 \
+             -col 200 \
+             -middle 10 \
+             -BLOCKSIZE 10
 ```
 
 
@@ -332,4 +361,16 @@ hdfs-site.xml
 </configuration>
 
 ```
+
+>报错记录：
+>
+>Remote RPC client disassociated. Likely due to containers exceeding thresholds, or network issues. Check driver logs for WARN messages
+>
+>Task Time is red
+>
+> org.apache.spark.shuffle.FetchFailedException: Error in reading FileSegmentManagedBuffer{file=/tmp/spark-9af01815-f088-4f49-9da9-cd9cf480d8f1/executor-6ae33bc6-776b-4153-b7e3-1107ca6e75f8/blockmgr-d34e85dc-b0b6-47cd-a954-f56b53e8c769/3a/shuffle_4_40_0.data, offset=65731463, length=2092026}
+>
+> org.apache.spark.shuffle.MetadataFetchFailedException: Missing an output location for shuffle 4
+
+
 

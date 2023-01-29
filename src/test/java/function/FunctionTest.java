@@ -1,22 +1,19 @@
-//package Function;
-//
-//import com.distributedMacPlayground.config.CommonConfig;
-//import com.distributedMacPlayground.util.IOUtil;
-//import com.distributedMacPlayground.util.RandomMatrixRDDGenerator;
-//import org.apache.spark.SparkConf;
-//import org.apache.spark.api.java.JavaPairRDD;
-//import org.apache.spark.api.java.JavaRDD;
-//import org.apache.spark.api.java.JavaSparkContext;
-//import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
-//import org.apache.sysds.runtime.instructions.spark.utils.RDDConverterUtils;
-//import org.apache.sysds.runtime.io.FileFormatPropertiesCSV;
-//import org.apache.sysds.runtime.matrix.data.MatrixBlock;
-//import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
-//import org.apache.sysds.runtime.meta.MatrixCharacteristics;
-//import org.junit.Test;
-//
-//public class FunctionTest {
-//
+package function;
+
+import com.distributedMacPlayground.config.CommonConfig;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
+import org.apache.sysds.runtime.instructions.spark.utils.RDDConverterUtils;
+import org.apache.sysds.runtime.matrix.data.MatrixBlock;
+import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
+import org.apache.sysds.runtime.meta.MatrixCharacteristics;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class FunctionTest {
+    //
 //    @Test
 //    public void getMatrixByCSVFile() {
 //        System.setProperty("hadoop.home.dir", "D:\\hadoop");
@@ -34,7 +31,6 @@
 //
 //    @Test
 //    public void generateLargeMatrix() throws Exception {
-//        // TODO: need to make sure that the index files are stored in CommonConfig.SYNTHETICDATASET_DIR
 //        String indexFileName = CommonConfig.SYNTHETICDATASET_DIR + "100x300x100/100x300x10_matrix_index.csv";
 //        SparkConf sparkConf = new SparkConf().setAppName("testFunction").setMaster("local");
 //        JavaSparkContext sc = new JavaSparkContext(sparkConf);
@@ -45,11 +41,16 @@
 //        IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Function.FunctionTest/generate.csv", res);
 //        System.out.println("Calculate successfully! You can find this output from ./src/test/cache/Function.FunctionTest");
 //    }
-//
-//    @Test
-//    public void testForTest() {
-//        System.out.println("-in1".toUpperCase());
-//    }
-//
-//
-//}
+    @Test
+    public void IOTest() throws Exception {
+        SparkConf sparkConf = new SparkConf().setAppName("IO").setMaster("local");
+        JavaSparkContext sc = new JavaSparkContext(sparkConf);
+        String path = CommonConfig.OUTPUT_BUFFER_DIR + "IO/in1.csv";
+        MatrixCharacteristics mc = new MatrixCharacteristics(20, 20, 10);
+        JavaPairRDD<MatrixIndexes, MatrixBlock> tmp = RDDConverterUtils.csvToBinaryBlock(sc, sc.textFile(path), mc, false, ",", true, 0, null);
+        MatrixBlock matrixBlock = SparkExecutionContext.toMatrixBlock(tmp, (int) mc.getRows(), (int) mc.getCols(), mc.getBlocksize(), -1);
+        Assert.assertNull(matrixBlock.getDenseBlock());
+        Assert.assertNotNull(matrixBlock.getSparseBlock());
+        sc.close();
+    }
+}

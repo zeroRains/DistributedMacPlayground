@@ -60,9 +60,8 @@ public class GNMF {
         TimeStatisticsUtil.parametersCheckStop(System.nanoTime());
 
         // 2. create the spark environment
-        SparkConf conf = new SparkConf().setAppName("GNMF").setMaster("local");
+        SparkConf conf = new SparkConf().setAppName("GNMF");
         sc = new JavaSparkContext(conf);
-        sc.setLogLevel("ERROR");
 
         // external：load parameters in MapMM
         if (mm instanceof MapMM) {
@@ -95,7 +94,7 @@ public class GNMF {
         System.out.println("Calculate time:        " + String.format("%.9f", TimeStatisticsUtil.getCalculateTime()) + " s.");
         System.out.println("Total time:            " + String.format("%.9f", TimeStatisticsUtil.getTotalTime()) + " s.");
         System.out.println("finish GNMF.");
-        sc.stop();
+        sc.close();
     }
 
     private static void executeGNMF(JavaPairRDD<MatrixIndexes, MatrixBlock> in) throws Exception {

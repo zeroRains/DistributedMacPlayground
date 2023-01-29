@@ -63,6 +63,7 @@ public class MapMM implements MatrixMultiply{
     public JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> a,
                                                            JavaPairRDD<MatrixIndexes, MatrixBlock> b, DataCharacteristics mc1,
                                                            DataCharacteristics mc2) throws Exception {
+        // determine which RDD is used  to broadcast
         JavaPairRDD<MatrixIndexes, MatrixBlock> rdd = type.isRight() ? a : b;
         JavaPairRDD<MatrixIndexes, MatrixBlock> bcast = type.isRight() ? b : a;
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1;
@@ -91,10 +92,11 @@ public class MapMM implements MatrixMultiply{
             }
         }
 
+        // material the broadcast matrix RDD, then set it to the spark broadcast region.
         MetaData md = new MetaData(mcBc);
         MatrixBlock blkBroadcast = SparkExecutionContext.toMatrixBlock(bcast, (int) mcBc.getRows(), (int) mcBc.getCols(), blen, -1);
         MatrixObject mo = new MatrixObject(Types.ValueType.FP64, "", md, blkBroadcast);
-        PartitionedBroadcast<MatrixBlock> in2 = ExecutionUtil.broadcastForMatrixObject(sc, mo);
+        PartitionedBroadcast<MatrixBlock> in2 = ExecutionUtil.broadcastForMatrixObject(sc, mo); // broadcast
 
         if (!outputEmpty)
             in1 = in1.filter(new FilterNonEmptyBlocksFunction());

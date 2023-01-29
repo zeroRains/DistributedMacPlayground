@@ -26,10 +26,12 @@ public class CpMM implements MatrixMultiply {
 
         int numPreferred = getPreferredParJoin(mc1, mc2, in1.getNumPartitions(), in2.getNumPartitions());
         int numPartJoin = Math.min(getMaxParJoin(mc1, mc2), numPreferred);
+        System.out.println("numPartJoin   :"+numPartJoin);
 
         JavaPairRDD<Long, IndexedMatrixValue> tmp1 = in1.mapToPair(new CpmmIndexFunction(true));
         JavaPairRDD<Long, IndexedMatrixValue> tmp2 = in2.mapToPair(new CpmmIndexFunction(false));
-        JavaPairRDD<MatrixIndexes, MatrixBlock> out = tmp1.join(tmp2, numPartJoin).mapToPair(new CpmmMultiplyFunction());
+        JavaPairRDD<MatrixIndexes, MatrixBlock> out = tmp1.join(tmp2,numPartJoin).mapToPair(new CpmmMultiplyFunction());
+//        JavaPairRDD<MatrixIndexes, MatrixBlock> out = tmp1.join(tmp2).mapToPair(new CpmmMultiplyFunction());
 
         if (mc1.isNoEmptyBlocks() || mc2.isNoEmptyBlocks())
             out = out.filter(new FilterNonEmptyBlocksFunction());

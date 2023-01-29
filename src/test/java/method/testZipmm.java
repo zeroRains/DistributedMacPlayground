@@ -27,5 +27,6 @@ public class testZipmm {
         MatrixBlock res = ZipMM.execute(in1, in2,true);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Zipmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Zipmm");
+        sc.close();
     }
 }

@@ -8,8 +8,10 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
+import org.apache.sysds.runtime.instructions.spark.utils.RDDConverterUtils;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
+import org.apache.sysds.runtime.meta.MatrixCharacteristics;
 import org.junit.Test;
 
 public class OperatorTest {
@@ -20,7 +22,7 @@ public class OperatorTest {
         sc.setLogLevel("ERROR");
         int blen = 1000;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(4000, 3000, 2, 1, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(400, 300, 2, 1, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/in1.csv", data.in1Block);
         JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = SparkExecutionContext.toMatrixJavaPairRDD(sc, data.in1Block, blen, -1, false);
         JavaPairRDD<MatrixIndexes, MatrixBlock> out = Operator.transpose(in1);
@@ -28,7 +30,7 @@ public class OperatorTest {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getCols(), (int) data.mc1.getRows(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Operator");
-        sc.stop();
+        sc.close();
     }
 
     @Test
@@ -48,7 +50,7 @@ public class OperatorTest {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getCols(), (int) data.mc1.getRows(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Operator");
-        sc.stop();
+        sc.close();
     }
 
     @Test
@@ -68,6 +70,7 @@ public class OperatorTest {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getCols(), (int) data.mc1.getRows(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Operator/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Operator");
-        sc.stop();
+        sc.close();
     }
+
 }

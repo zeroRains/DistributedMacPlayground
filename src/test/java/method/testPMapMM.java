@@ -31,7 +31,7 @@ public class testPMapMM {
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "PMapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/PMapmm");
-
+        sc.close();
     }
 
     @Test
@@ -53,7 +53,7 @@ public class testPMapMM {
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "PMapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/PMapmm");
-
+        sc.close();
     }
 
     // from this test, we should make sure broadcast matrix must be dense. Because sparse vector will make broadcast cache block be null.
@@ -76,7 +76,7 @@ public class testPMapMM {
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "PMapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/PMapmm");
-
+        sc.close();
     }
 
     @Test
@@ -98,7 +98,7 @@ public class testPMapMM {
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "PMapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/PMapmm");
-
+        sc.close();
     }
 
     @Test
@@ -120,6 +120,6 @@ public class testPMapMM {
 
         IOUtil.outputMatrixToLocalCSV(System.getProperty("user.dir") + "/" + CommonConfig.OUTPUT_BUFFER_DIR + "PMapmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/PMapmm");
-
+        sc.close();
     }
 }

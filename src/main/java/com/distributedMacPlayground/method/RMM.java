@@ -27,6 +27,10 @@ public class RMM implements MatrixMultiply{
     public JavaPairRDD<MatrixIndexes, MatrixBlock> execute(JavaPairRDD<MatrixIndexes, MatrixBlock> in1,
                                                            JavaPairRDD<MatrixIndexes, MatrixBlock> in2,
                                                            DataCharacteristics mc1, DataCharacteristics mc2) throws Exception {
+        if (in1.isEmpty() || in2.isEmpty())
+            throw new Exception("Input is empty!");
+        if (mc1.getCols() != mc2.getRows())
+            throw new Exception("Dimension do not match!");
         JavaPairRDD<TripleIndexes, MatrixBlock> tmp1 = in1.flatMapToPair(new RmmReplicateFunction(mc2.getCols(), mc2.getBlocksize(), true));
         JavaPairRDD<TripleIndexes, MatrixBlock> tmp2 = in2.flatMapToPair(new RmmReplicateFunction(mc1.getRows(), mc1.getBlocksize(), false));
         DataCharacteristics mcOut = new MatrixCharacteristics(mc1.getRows(), mc2.getCols(), mc1.getBlocksize());

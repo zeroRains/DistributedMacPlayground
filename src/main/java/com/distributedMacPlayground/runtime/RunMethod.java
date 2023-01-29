@@ -7,6 +7,7 @@ import com.distributedMacPlayground.method.*;
 import com.distributedMacPlayground.util.IOUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.storage.StorageLevel;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysds.runtime.meta.DataCharacteristics;
@@ -42,8 +43,13 @@ public class RunMethod {
         this._blockSize = _blockSize;
         this.mc1 = new MatrixCharacteristics(_outRowLen, _middleLen, _blockSize);
         this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
-        in1 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath1, this.mc1);
-        in2 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath2, this.mc2);
+        in1 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath1, this.mc1); // read the matrix data from a .csv file
+        if (this.matrixPath1.equals(this.matrixPath2)) {
+            in1.persist(StorageLevel.MEMORY_ONLY());
+            in2 = in1;
+        } else {
+            in2 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath2, this.mc2);
+        }
     }
 
     // get data by index， expect MapMM
@@ -74,8 +80,13 @@ public class RunMethod {
         this._blockSize = _blockSize;
         this.mc1 = new MatrixCharacteristics(_outRowLen, _middleLen, _blockSize);
         this.mc2 = new MatrixCharacteristics(_middleLen, _outColLen, _blockSize);
-        in1 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath1, this.mc1);
-        in2 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath2, this.mc2);
+        in1 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath1, this.mc1); // read the matrix data from a .csv file
+        if (this.matrixPath1.equals(this.matrixPath2)) {
+            in1.persist(StorageLevel.MEMORY_ONLY());
+            in2 = in1;
+        } else {
+            in2 = IOUtil.csvFileToMatrixRDD(this.sc, this.matrixPath2, this.mc2);
+        }
     }
 
     public RunMethod(JavaSparkContext sc, MMMethodType _methodType, int _outRowLen, int _outColLen, int _middleLen, int _blockSize, CacheTpye _cacheType, SparkAggType _aggType, JavaPairRDD<MatrixIndexes, MatrixBlock> in1, JavaPairRDD<MatrixIndexes, MatrixBlock> in2) {
@@ -134,6 +145,14 @@ public class RunMethod {
         this.outputIn2Path = outputIn2Path;
     }
 
+    public void set_cacheType(CacheTpye _cacheType) {
+        this._cacheType = _cacheType;
+    }
+
+    public void set_aggType(SparkAggType _aggType) {
+        this._aggType = _aggType;
+    }
+
     public JavaPairRDD<MatrixIndexes, MatrixBlock> getOut() {
         return out;
     }
@@ -143,7 +162,7 @@ public class RunMethod {
             case CpMM:
 //                out = CpMM.execute(in1, in2, mc1, mc2);
                 mm = new CpMM();
-                mm.execute(in1, in2, mc1, mc2);
+                out = mm.execute(in1, in2, mc1, mc2);
                 break;
             case PMapMM:
                 out = PMapMM.execute(sc, in1, in2, mc1);
@@ -151,10 +170,11 @@ public class RunMethod {
             case RMM:
 //                out = RMM.execute(in1, in2, mc1, mc2);
                 mm = new RMM();
-                mm.execute(in1,in2,mc1,mc2);
+                out = mm.execute(in1, in2, mc1, mc2);
                 break;
             case ZipMM:
                 blkOut = ZipMM.execute(in1, in2, _tRewrite);
+                break;
             case MapMM:
                 if (_cacheType == null || _aggType == null)
                     throw new Exception("please set _cacheType and _aggType");
@@ -166,7 +186,7 @@ public class RunMethod {
                 mapMM.setSc(sc);
                 mapMM.setBlen(_blockSize);
                 mm = mapMM;
-                mm.execute(in1,in2,mc1,mc2);
+                out = mm.execute(in1, in2, mc1, mc2);
                 break;
             case CRMM:
                 out = CRMM.execute(in1, in2, mc1, mc2);

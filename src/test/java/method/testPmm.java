@@ -51,5 +51,6 @@ public class testPmm { // Pmm（permutation matrix multiplication on row）, I f
         System.out.println("res: "+res.getNumRows() + "x" + res.getNumColumns());
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Pmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Pmm");
+        sc.close();
     }
 }

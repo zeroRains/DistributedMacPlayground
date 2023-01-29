@@ -18,7 +18,7 @@ public class testRmm {
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(400, 400, 400, 200, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(20, 20, 20, 20, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Rmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Rmm/in2.csv", data.in2Block);
@@ -32,6 +32,6 @@ public class testRmm {
         MatrixBlock res = SparkExecutionContext.toMatrixBlock(out, (int) data.mc1.getRows(), (int) data.mc2.getCols(), data.mc1.getBlocksize(), -1);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Rmm/out.csv", res);
         System.out.println("Calculate successfully! You can find this test input and output from ./src/test/cache/Rmm");
-
+        sc.close();
     }
 }

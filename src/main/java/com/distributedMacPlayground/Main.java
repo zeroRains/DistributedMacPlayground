@@ -2,6 +2,7 @@ package com.distributedMacPlayground;
 
 import com.distributedMacPlayground.config.CommonConfig;
 import com.distributedMacPlayground.runtime.RunMethod;
+import com.distributedMacPlayground.util.IOUtil;
 import com.distributedMacPlayground.util.RandomMatrixRDDGenerator;
 import com.distributedMacPlayground.util.TimeStatisticsUtil;
 import org.apache.spark.SparkConf;
@@ -10,8 +11,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 import com.distributedMacPlayground.config.CommonConfig.MMMethodType;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
+import org.apache.sysds.runtime.meta.MatrixCharacteristics;
 import scala.Tuple2;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Main {
@@ -31,15 +35,16 @@ public class Main {
     static String pdf = "uniform";
     static String saveFilePath = null;
     static MMMethodType _type = null;
+    static String MMName = null;
     static CommonConfig.CacheTpye _cacheType = CommonConfig.CacheTpye.LEFT;
     static CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
 
 
     public static void main(String[] args) throws Exception {
+        System.out.println("Start time:            " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         // 1. create spark environment
-        SparkConf sparkConf = new SparkConf().setAppName("test").setMaster("local"); //you can use .setMaster("local") to run in the local machine when you test the program.
+        SparkConf sparkConf = new SparkConf().setAppName("Multiplication"); //you can use .setMaster("local") to run in the local machine when you test the program.
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
-        sc.setLogLevel("ERROR");
 
         TimeStatisticsUtil.totalStart(System.nanoTime());
         // 2. parse and check the parameters
@@ -52,73 +57,89 @@ public class Main {
         // 3. RDD transform and execute the distributed matrix multiply
 
         if (dataType.equals("data")) {
-            if (_type != MMMethodType.MapMM) {
-                TimeStatisticsUtil.loadDataStart(System.nanoTime());
-                RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1Path, in2Path);
-                runMethod.set_tRewrite(_tWrite);
-                TimeStatisticsUtil.loadDataStop(System.nanoTime());
-
-                TimeStatisticsUtil.calculateStart(System.nanoTime());
-                runMethod.execute();
-                if (runMethod.getOut() != null) {
-                    List<Tuple2<MatrixIndexes, MatrixBlock>> res = runMethod.getOut().collect();
-                }
-                TimeStatisticsUtil.calculateStop(System.nanoTime());
-
-            } else {
-                TimeStatisticsUtil.loadDataStart(System.nanoTime());
-                RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, _cacheType, _aggType, in1Path, in2Path);
-                runMethod.set_outputEmpty(outputEmpty);
-                TimeStatisticsUtil.loadDataStop(System.nanoTime());
-
-                TimeStatisticsUtil.calculateStart(System.nanoTime());
-                runMethod.execute();
-                TimeStatisticsUtil.calculateStop(System.nanoTime());
-            }
-        } else {
             TimeStatisticsUtil.loadDataStart(System.nanoTime());
+            RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1Path, in2Path);
+            runMethod.set_tRewrite(_tWrite);
+
+            if (_type == MMMethodType.MapMM) {
+                runMethod.set_cacheType(_cacheType);
+                runMethod.set_aggType(_aggType);
+                runMethod.set_outputEmpty(outputEmpty);
+            }
+
+            runMethod.execute();
+            TimeStatisticsUtil.loadDataStop(System.nanoTime());
+            TimeStatisticsUtil.calculateStart(System.nanoTime());
+
+            if (runMethod.getOut() == null)
+                throw new Exception("Don't finish the RDD transform!");
+            if (saveFilePath != null) {
+                IOUtil.saveMatrixAsCSVFile(runMethod.getOut(), saveFilePath + "/out.csv", new MatrixCharacteristics(row, col, blockSize));
+            } else {
+                long count = runMethod.getOut().count();
+            }
+            TimeStatisticsUtil.calculateStop(System.nanoTime());
+        } else {
+            TimeStatisticsUtil.loadDataStart(System.nanoTime()); // set load time
+
+            // generator the matrix data from index file
             RandomMatrixRDDGenerator rddGenerator = new RandomMatrixRDDGenerator(min, max, sparsity, pdf, seed);
             JavaPairRDD<MatrixIndexes, MatrixBlock> in1 = rddGenerator.generate(sc, in1Path);
+
+            // get the corresponded parameters
             row = rddGenerator.getRlen();
             middle = rddGenerator.getClen();
             blockSize = rddGenerator.getBlockSize();
             JavaPairRDD<MatrixIndexes, MatrixBlock> in2 = rddGenerator.generate(sc, in2Path);
             col = rddGenerator.getClen();
+
+            // check the dimension
             if (middle != rddGenerator.getRlen())
                 throw new Exception("Dimension do not match!");
-            if (_type != MMMethodType.MapMM) {
-                RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1, in2);
-                runMethod.set_tRewrite(_tWrite);
-                TimeStatisticsUtil.loadDataStop(System.nanoTime());
 
-                TimeStatisticsUtil.calculateStart(System.nanoTime());
-                if (_type == MMMethodType.TEST && saveFilePath != null) {
-                    runMethod.setOutputIn1Path(saveFilePath + "/" + row + "x" + middle + "x" + blockSize + "_matrix_data.csv");
-                    if (row != middle)
-                        runMethod.setOutputIn2Path(saveFilePath + "/" + middle + "x" + col + "x" + blockSize + "_matrix_data.csv");
-                }
-                runMethod.execute();
-                if (runMethod.getOut() != null && _type != MMMethodType.TEST) {
-                    List<Tuple2<MatrixIndexes, MatrixBlock>> tmp = runMethod.getOut().collect();
-                }
-                TimeStatisticsUtil.calculateStop(System.nanoTime());
-            } else {
-                RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, _cacheType, _aggType, in1, in2);
-                runMethod.set_outputEmpty(outputEmpty);
-                TimeStatisticsUtil.loadDataStop(System.nanoTime());
+            //  get the mm method
+            RunMethod runMethod = new RunMethod(sc, _type, row, col, middle, blockSize, in1, in2);
+            runMethod.set_tRewrite(_tWrite);
 
-                TimeStatisticsUtil.calculateStart(System.nanoTime());
-                runMethod.execute();
-                TimeStatisticsUtil.calculateStop(System.nanoTime());
+            // if you need to output the file to HDFS, you will run here
+            if (_type == MMMethodType.TEST && saveFilePath != null) {
+                runMethod.setOutputIn1Path(saveFilePath + "/" + row + "x" + middle + "x" + blockSize + "_matrix_data.csv");
+                if (row != middle)
+                    runMethod.setOutputIn2Path(saveFilePath + "/" + middle + "x" + col + "x" + blockSize + "_matrix_data.csv");
             }
+            // if you use the MapMM, you may need to set more parameters
+            if (_type == MMMethodType.MapMM) {
+                runMethod.set_outputEmpty(outputEmpty);
+                runMethod.set_cacheType(_cacheType);
+                runMethod.set_aggType(_aggType);
+            }
+
+            // create the RDD transform
+            runMethod.execute();
+            TimeStatisticsUtil.loadDataStop(System.nanoTime());
+            TimeStatisticsUtil.calculateStart(System.nanoTime());
+
+            // Now, we should provide an action to calculate the RDD.
+            if (runMethod.getOut() == null)
+                throw new Exception("Don't finish the RDD transform!");
+
+            if (saveFilePath != null) {
+                IOUtil.saveMatrixAsCSVFile(runMethod.getOut(), saveFilePath + "/out.csv", new MatrixCharacteristics(row, col, blockSize));
+            } else {
+                long count = runMethod.getOut().count();
+            }
+            TimeStatisticsUtil.calculateStop(System.nanoTime());
         }
         TimeStatisticsUtil.totalTimeStop(System.nanoTime());
         // 4. output the execution time
+        System.out.println("Matrix multiply method:" + MMName + ".");
+        System.out.println("Scale:                 " + row + "x" + middle + "x" + col + "x" + sparsity + ".");
         System.out.println("Default parallelism:   " + sc.defaultParallelism());
         System.out.println("Check parameters time: " + String.format("%.9f", TimeStatisticsUtil.getParametersCheckTime()) + " s.");
-        System.out.println("Load data time:        " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");
+        System.out.println("RDD transform time:    " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");
         System.out.println("Calculate time:        " + String.format("%.9f", TimeStatisticsUtil.getCalculateTime()) + " s.");
         System.out.println("Total time:            " + String.format("%.9f", TimeStatisticsUtil.getTotalTime()) + " s.");
+        System.out.println("Finish time:           " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         System.out.println("Finish to calculate distributed matrix multiply.");
 
         // 5. close spark environment
@@ -139,6 +160,7 @@ public class Main {
         for (int i = 0; i < args.length; i += 2) {
             switch (args[i].toUpperCase()) {
                 case "-MMTYPE":
+                    MMName = args[i + 1].toUpperCase();
                     switch (args[i + 1].toUpperCase()) {
                         case "CPMM":
                             _type = MMMethodType.CpMM;

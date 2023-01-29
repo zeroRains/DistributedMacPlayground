@@ -24,7 +24,7 @@ public class ExecutionUtil {
      * @return
      */
     public static PartitionedBroadcast<MatrixBlock> broadcastForMatrixObject(JavaSparkContext sc, MatrixObject mo) {
-        PartitionedBroadcast<MatrixBlock> bret = null;
+        PartitionedBroadcast<MatrixBlock> bret = null; // create the partitioned broadcast matrix
         synchronized (mo) {
             if (mo.getBroadcastHandle() != null && mo.getBroadcastHandle().isPartitionedBroadcastValid()) {
                 bret = mo.getBroadcastHandle().getPartitionedBroadcast();
@@ -33,17 +33,19 @@ public class ExecutionUtil {
             if (bret == null) {
                 if (mo.getBroadcastHandle() != null)
                     CacheableData.addBroadcastSize(-mo.getBroadcastHandle().getSize());
-                int blen = (int) mo.getBlocksize();
+                int blen = (int) mo.getBlocksize(); // get the matrix block size
 
-                MatrixBlock mb = mo.acquireRead();
-                PartitionedBlock<MatrixBlock> pmb = new PartitionedBlock<>(mb, blen);
-                mo.release();
+                MatrixBlock mb = mo.acquireRead(); // material the matrix
+                PartitionedBlock<MatrixBlock> pmb = new PartitionedBlock<>(mb, blen); // create the partitioned block
+                mo.release(); // release the matrix object from memory
 
+                // determine how many per partitions and parts are the block need
                 int numPerPart = PartitionedBroadcast.computeBlocksPerPartition(mo.getNumRows(), mo.getNumColumns(), blen);
                 int numParts = (int) Math.ceil((double) pmb.getNumRowBlocks() * pmb.getNumColumnBlocks() / numPerPart);
-                Broadcast<PartitionedBlock<MatrixBlock>>[] ret = new Broadcast[numParts];
+                Broadcast<PartitionedBlock<MatrixBlock>>[] ret = new Broadcast[numParts]; // create the corresponded list
 
                 if (numParts > 1) {
+                    // split the matrix block and generate the partitioned block then broadcast
                     Arrays.parallelSetAll(ret, i -> createPartitionedBroadcast(sc, pmb, numPerPart, i));
                 } else {
                     ret[0] = sc.broadcast(pmb);
@@ -75,8 +77,9 @@ public class ExecutionUtil {
      */
     private static Broadcast<PartitionedBlock<MatrixBlock>> createPartitionedBroadcast(
             JavaSparkContext sc, PartitionedBlock<MatrixBlock> pmb, int numPerPart, int pos) {
-        int offset = pos * numPerPart;
-        int numBlks = Math.min(numPerPart, pmb.getNumColumnBlocks() * pmb.getNumColumnBlocks() - offset);
+        int offset = pos * numPerPart; // check the position in original matrix block
+        // whether the position out of the matrix block
+        int numBlks = Math.min(numPerPart, pmb.getNumRowBlocks() * pmb.getNumColumnBlocks() - offset);
         PartitionedBlock<MatrixBlock> tmp = pmb.createPartition(offset, numBlks);
         Broadcast<PartitionedBlock<MatrixBlock>> ret = sc.broadcast(tmp);
 //        if (!sc.isLocal())
