@@ -62,8 +62,8 @@ bin/spark-submit --deploy-mode cluster\
              --conf spark.driver.host=hadoop101 \
              --master spark://hadoop101:7077 \
              --class com.distributedMacPlayground.Main \
-             debug.jar \
-             -mmtype MapMM \
+             DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
+             -mmtype CPMM \
              -datatype data \
              -row 10000 \
              -col 10000 \
@@ -99,9 +99,9 @@ bin/spark-submit --deploy-mode cluster \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
              -mmtype cpmm \
              -datatype data \
-             -row 100000 \
-             -col 100000 \
-             -middle 1000 \
+             -row 10000 \
+             -col 10000 \
+             -middle 100000 \
              -blockSize 1000 \
              -in1 hdfs://230153b45b98:9000/user/root/10Kx100K.csv \
              -in2 hdfs://230153b45b98:9000/user/root/100Kx10K.csv \
@@ -112,14 +112,16 @@ GNMF submit test：
 
 ```shell
 bin/spark-submit --deploy-mode cluster\
-             --master spark://7d88ca6d3cf1:7077 \
+             --master spark://hadoop101:7077 \
              --class com.distributedMacPlayground.GNMF \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
              -type RMM \
-             -row 100 \
-             -col 200 \
-             -middle 10 \
-             -BLOCKSIZE 10
+             -path hdfs://hadoop101:8020/user/hadoop/soc-buzznet.mtx \
+             -row 101163 \
+             -col 101163 \
+             -middle 1000 \
+             -BLOCKSIZE 1000 \
+             -iter 1
 ```
 
 

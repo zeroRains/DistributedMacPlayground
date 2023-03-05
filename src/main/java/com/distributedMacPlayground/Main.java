@@ -133,7 +133,9 @@ public class Main {
         TimeStatisticsUtil.totalTimeStop(System.nanoTime());
         // 4. output the execution time
         System.out.println("Matrix multiply method:" + MMName + ".");
-        System.out.println("Scale:                 " + row + "x" + middle + "x" + col + "x" + sparsity + ".");
+        System.out.println("Scale:                 " + row + "x" + middle + "x" + col + "x"+ ".");
+        System.out.println("Path1:                 " + in1Path);
+        System.out.println("Path2:                 " + in2Path);
         System.out.println("Default parallelism:   " + sc.defaultParallelism());
         System.out.println("Check parameters time: " + String.format("%.9f", TimeStatisticsUtil.getParametersCheckTime()) + " s.");
         System.out.println("RDD transform time:    " + String.format("%.9f", TimeStatisticsUtil.getLoadDataTime()) + " s.");

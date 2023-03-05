@@ -5,6 +5,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.sysds.runtime.controlprogram.context.SparkExecutionContext;
+import org.apache.sysds.runtime.data.SparseBlock;
 import org.apache.sysds.runtime.instructions.spark.utils.RDDConverterUtils;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixIndexes;
@@ -52,5 +53,10 @@ public class FunctionTest {
         Assert.assertNull(matrixBlock.getDenseBlock());
         Assert.assertNotNull(matrixBlock.getSparseBlock());
         sc.close();
+    }
+
+    @Test
+    public void anyTest() throws Exception{
+
     }
 }

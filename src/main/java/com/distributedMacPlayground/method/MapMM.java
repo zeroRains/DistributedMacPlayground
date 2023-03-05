@@ -96,7 +96,7 @@ public class MapMM implements MatrixMultiply{
         MetaData md = new MetaData(mcBc);
         MatrixBlock blkBroadcast = SparkExecutionContext.toMatrixBlock(bcast, (int) mcBc.getRows(), (int) mcBc.getCols(), blen, -1);
         MatrixObject mo = new MatrixObject(Types.ValueType.FP64, "", md, blkBroadcast);
-        PartitionedBroadcast<MatrixBlock> in2 = ExecutionUtil.broadcastForMatrixObject(sc, mo); // broadcast
+        PartitionedBroadcast<MatrixBlock> in2 = ExecutionUtil.broadcastForMatrixObject(sc, mo); // partitioned broadcast
 
         if (!outputEmpty)
             in1 = in1.filter(new FilterNonEmptyBlocksFunction());

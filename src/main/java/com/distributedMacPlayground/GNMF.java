@@ -40,6 +40,7 @@ public class GNMF {
     static CommonConfig.SparkAggType aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
     static boolean tWrite = true;
     static boolean outputEmpty = false;
+    static boolean testRead = false;
     static MatrixMultiply mm = null;
     static DataCharacteristics mc1 = null;
     static DataCharacteristics mc2 = null;
@@ -49,6 +50,7 @@ public class GNMF {
     static DataCharacteristics mcMiddle = null;
     static MatrixBlock factor1Res = null;
     static MatrixBlock factor2Res = null;
+    static boolean saveResult = false;
 
 
     public static void main(String[] args) throws Exception {
@@ -79,6 +81,11 @@ public class GNMF {
         JavaPairRDD<MatrixIndexes, MatrixBlock> in = loadData();
         TimeStatisticsUtil.loadDataStop(System.nanoTime());
         System.out.println("finished load");
+        if(testRead){
+            System.out.println(in.count());
+            sc.close();
+            System.exit(0);
+        }
 
         // 4. execute the GNMF
         TimeStatisticsUtil.calculateStart(System.nanoTime());
@@ -105,8 +112,13 @@ public class GNMF {
             factor1 = updateFactor1(in, factor1, factor2);
             factor2 = updateFactor2(in, factor1, factor2);
         }
+        if(saveResult){
         factor1Res = SparkExecutionContext.toMatrixBlock(factor1, row, middle, blockSize, -1);
         factor2Res = SparkExecutionContext.toMatrixBlock(factor2, middle, col, blockSize, -1);
+        }else{
+            long res1 = factor1.count();
+            long res2 = factor2.count();
+        }
     }
 
     private static JavaPairRDD<MatrixIndexes, MatrixBlock> updateFactor2(
@@ -247,6 +259,12 @@ public class GNMF {
                     break;
                 case "-SEED":
                     seed = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-TESTREAD":
+                    testRead = Boolean.parseBoolean(args[i+1]);
+                    break;
+                case "-SAVERESULT":
+                    saveResult = Boolean.parseBoolean(args[i+1]);
                     break;
                 default:
                     throw new Exception("We have not supported this parameter");

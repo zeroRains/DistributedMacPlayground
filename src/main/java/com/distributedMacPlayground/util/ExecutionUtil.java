@@ -80,8 +80,8 @@ public class ExecutionUtil {
         int offset = pos * numPerPart; // check the position in original matrix block
         // whether the position out of the matrix block
         int numBlks = Math.min(numPerPart, pmb.getNumRowBlocks() * pmb.getNumColumnBlocks() - offset);
-        PartitionedBlock<MatrixBlock> tmp = pmb.createPartition(offset, numBlks);
-        Broadcast<PartitionedBlock<MatrixBlock>> ret = sc.broadcast(tmp);
+        PartitionedBlock<MatrixBlock> tmp = pmb.createPartition(offset, numBlks); // get the partitioned block
+        Broadcast<PartitionedBlock<MatrixBlock>> ret = sc.broadcast(tmp); // broadcast it
 //        if (!sc.isLocal())
 //            tmp.clearBlocks();
         return ret;
