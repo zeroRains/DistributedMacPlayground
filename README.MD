@@ -178,6 +178,8 @@ We will use the index to generate partitioned distributed matrix.
 
 # If this project is useful for you, please give us a star. Thank you.
 
+## The config of the spark cluster
+
 core-site.xml
 
 ```xml
@@ -364,16 +366,6 @@ hdfs-site.xml
 </configuration>
 
 ```
-
->报错记录：
->
->Remote RPC client disassociated. Likely due to containers exceeding thresholds, or network issues. Check driver logs for WARN messages
->
->Task Time is red
->
-> org.apache.spark.shuffle.FetchFailedException: Error in reading FileSegmentManagedBuffer{file=/tmp/spark-9af01815-f088-4f49-9da9-cd9cf480d8f1/executor-6ae33bc6-776b-4153-b7e3-1107ca6e75f8/blockmgr-d34e85dc-b0b6-47cd-a954-f56b53e8c769/3a/shuffle_4_40_0.data, offset=65731463, length=2092026}
->
-> org.apache.spark.shuffle.MetadataFetchFailedException: Missing an output location for shuffle 4
 
 
 
