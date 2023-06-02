@@ -36,14 +36,6 @@ spark-submit --deploy-mode cluster\
 The example of  full command:
 
 ```shell
-gangliastart
-
-systemctl start gmond.service && ssh hadoop102 "systemctl start gmond.service" && ssh hadoop103 "systemctl start gmond.service"
-
-sudo systemctl stop gmond.service && ssh hadoop102 "sudo systemctl stop gmond.service" && ssh hadoop103 "sudo systemctl stop gmond.service"
-```
-
-```shell
 bin/spark-submit --deploy-mode cluster\
              --conf spark.driver.host=hadoop101 \
              --master spark://hadoop101:7077 \
