@@ -26,7 +26,7 @@ public class testMapMM {
         CommonConfig.SparkAggType _aggType = CommonConfig.SparkAggType.MULTI_BLOCK;
         boolean outputEmpty = false;
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(100, 200, 200, 300, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(100, 3000, 3000, 200, 1, 1, 2, 2, 5, 5, "uniform", 1023, blen);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Mapmm/in2.csv", data.in2Block);

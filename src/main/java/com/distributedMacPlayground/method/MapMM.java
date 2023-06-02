@@ -147,8 +147,8 @@ public class MapMM implements MatrixMultiply{
     }
 
     private static boolean requiresFlatMapFunction(CacheTpye type, DataCharacteristics mcBc) {
-        return (type == CacheTpye.LEFT && mcBc.getRows() > mcBc.getBlocksize())
-                || (type == CacheTpye.RIGHT && mcBc.getCols() > mcBc.getBlocksize());
+        return (type == CacheTpye.LEFT && mcBc.getRows() > mcBc.getBlocksize()) // 确定行的数量是否超过一个块
+                || (type == CacheTpye.RIGHT && mcBc.getCols() > mcBc.getBlocksize()); // 确定列的数量是否超过一个块
     }
 
     private static int getNumRepartitioning(CacheTpye type, DataCharacteristics mcRdd, DataCharacteristics mcBc) {
@@ -201,9 +201,10 @@ public class MapMM implements MatrixMultiply{
         @Override
         public Iterator<Tuple2<MatrixIndexes, MatrixBlock>> call(Tuple2<MatrixIndexes, MatrixBlock> arg0)
                 throws Exception {
+            // 假设是左广播，那么现在输入的是右矩阵的B(i,j)，他要从pbc(广播矩阵中)，取出A(0,i),A(1,i),....,(n,i)与其计算一个中间结果，中间结果的坐标分别为(0,j),(1,j),...,(n,j)
             MatrixIndexes ixIn = arg0._1();
             MatrixBlock blkIn = arg0._2();
-            if (_type == CacheTpye.LEFT) {
+            if (_type == CacheTpye.LEFT) { // 广播左边的矩阵
                 return IntStream.range(1, _pbc.getNumRowBlocks() + 1).mapToObj(i ->
                         new Tuple2<>(new MatrixIndexes(i, ixIn.getColumnIndex()),
                                 OperationsOnMatrixValues.matMult(_pbc.getBlock(i, (int) ixIn.getRowIndex()), blkIn,
@@ -244,7 +245,7 @@ public class MapMM implements MatrixMultiply{
                 MatrixIndexes ixIn = arg0._1();
                 MatrixBlock blkIn = arg0._2();
                 MatrixBlock blkOut;
-
+                // 假设是左广播，就取出(1,j)的广播块，
                 if (_type == CacheTpye.LEFT) {
                     MatrixBlock left = _pbc.getBlock(1, (int) ixIn.getRowIndex());
                     blkOut = OperationsOnMatrixValues.matMult(left, blkIn, _op);

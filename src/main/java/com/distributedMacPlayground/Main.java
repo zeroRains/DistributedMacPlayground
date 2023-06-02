@@ -220,6 +220,7 @@ public class Main {
                             break;
                         case "RIGHT":
                             _cacheType = CommonConfig.CacheTpye.RIGHT;
+                            break;
                         default:
                             throw new Exception("There do not support " + args[i + 1] + " in cacheType");
                     }

@@ -18,7 +18,7 @@ public class testRmm {
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("ERROR");
 
-        SimpleMatrixMulData data = new SimpleMatrixMulData(20, 20, 20, 20, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
+        SimpleMatrixMulData data = new SimpleMatrixMulData(100, 200, 200, 200, 1, 1, 2, 2, 5, 5, "uniform", 1023, 10);
 
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Rmm/in1.csv", data.in1Block);
         IOUtil.outputMatrixToLocalCSV(CommonConfig.OUTPUT_BUFFER_DIR + "Rmm/in2.csv", data.in2Block);

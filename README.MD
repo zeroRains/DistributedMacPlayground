@@ -63,15 +63,16 @@ bin/spark-submit --deploy-mode cluster\
              --master spark://hadoop101:7077 \
              --class com.distributedMacPlayground.Main \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
-             -mmtype CPMM \
+             -mmtype RMM \
              -datatype data \
              -row 10000 \
              -col 10000 \
              -middle 100000 \
              -blockSize 1000 \
-             -in1 hdfs://hadoop101:8020/user/hadoop/10000x100000x0.2.csv \
-             -in2 hdfs://hadoop101:8020/user/hadoop/100000x10000x0.2.csv \
-             -outputempty true
+             -in1 hdfs://hadoop101:8020/user/hadoop/10000x100000x0.1.csv \
+             -in2 hdfs://hadoop101:8020/user/hadoop/100000x10000x0.1.csv \
+             -outputempty true \
+             -CACHETYPE left
 ```
 
 >修改spark 中的conf，添加`spark.local.dir  /tmp/spark-temp` ——解决磁盘溢出的问题
@@ -99,9 +100,9 @@ bin/spark-submit --deploy-mode cluster \
              DistributeMacPlayground-1.0-SNAPSHOT-jar-with-dependencies.jar \
              -mmtype cpmm \
              -datatype data \
-             -row 10000 \
-             -col 10000 \
-             -middle 100000 \
+             -row 30000 \
+             -col 20000 \
+             -middle 1000 \
              -blockSize 1000 \
              -in1 hdfs://230153b45b98:9000/user/root/10Kx100K.csv \
              -in2 hdfs://230153b45b98:9000/user/root/100Kx10K.csv \
