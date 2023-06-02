@@ -67,7 +67,8 @@ bin/spark-submit --deploy-mode cluster\
              -CACHETYPE left
 ```
 
->修改spark 中的conf，添加`spark.local.dir  /tmp/spark-temp` ——解决磁盘溢出的问题
+> some bug fix
+>Modify the conf file of spark，add `spark.local.dir  /tmp/spark-temp` ——resovle the problem about out of disk.
 >
 >```shell
 >spark.local.dir                     /opt/module/spark/tmp
@@ -78,10 +79,7 @@ bin/spark-submit --deploy-mode cluster\
 >spark.driver.host 	                hadoop101
 >spark.ui.enabled                    true
 >```
->
->1. 将index物化成hadoop中的数据
->2. 将hadoop放到系统盘中，避免下次再次生成数据
->3. 系统500，额外510
+
 
 local submit test：
 
